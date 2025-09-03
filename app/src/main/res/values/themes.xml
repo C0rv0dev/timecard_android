@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.TimecardApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!--    remove splash screen -->
+    <style name="Theme.TimecardApp.Splash" parent="Theme.TimecardApp">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+</resources>
