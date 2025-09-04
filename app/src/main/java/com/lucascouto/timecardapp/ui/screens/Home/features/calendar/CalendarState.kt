@@ -21,15 +21,19 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
     private val _currentDate: MutableState<LocalDate> = mutableStateOf(initialDate)
     val currentDate: State<LocalDate> by lazy { _currentDate }
 
-    private val _events = mutableStateOf<List<CalendarEvent>>(emptyList())
+    private val _events = mutableStateOf<List<CalendarEvent>>(generateCalendarEvents(initialDate))
     private val _cells: MutableState<List<CalendarCellData>> =
         mutableStateOf(generateCalendarCells(initialDate))
     val cells: State<List<CalendarCellData>> by lazy { _cells }
 
     // Initializer
     init {
-        updateMonth(_currentDate.value)
-        _events.value = generateCalendarEvents(LocalDate.now())
+        scope.launch {
+            _events.value = generateCalendarEvents(LocalDate.now())
+            withContext(Dispatchers.Main) {
+                updateMonth(_currentDate.value)
+            }
+        }
     }
 
     // Methods
@@ -50,7 +54,7 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
     private fun generateCalendarEvents(currentDate: LocalDate): List<CalendarEvent> {
         // generate one event for each odd day of the month
         val daysInMonth = currentDate.lengthOfMonth()
-        return (1..daysInMonth).filter { it % 2 != 0 }.map { day ->
+        return (1..daysInMonth).filter { it % 2 == 0 }.map { day ->
             CalendarEvent(
                 date = currentDate.withDayOfMonth(day),
                 // pick a random color

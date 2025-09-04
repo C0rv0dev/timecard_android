@@ -14,15 +14,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lucascouto.timecardapp.sys.debug.DebugComposable
 
 @Composable
 fun EstimatedSalaryCard(estimatedSalary: Int = 123456) {
     val formattedSalary = String.format("%,d", estimatedSalary).replace(',', '.')
 
     Card {
-        DebugComposable("EstimatedSalaryCard")
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()

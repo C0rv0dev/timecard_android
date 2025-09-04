@@ -22,7 +22,7 @@ fun HomeScreen(
     BasePage(navController) {
         Column(modifier = Modifier.padding(8.dp)) {
 //        Estimated Salary
-            EstimatedSalaryCard()
+            EstimatedSalaryCard(viewModel.estimatedSalary)
 
             Spacer(modifier = Modifier.padding(8.dp))
 

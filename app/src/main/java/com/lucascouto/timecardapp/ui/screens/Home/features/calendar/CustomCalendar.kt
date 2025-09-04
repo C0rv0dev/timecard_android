@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lucascouto.timecardapp.sys.debug.DebugComposable
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.models.CalendarCellData
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.models.CalendarEvent
 import java.time.LocalDate
@@ -40,8 +39,6 @@ fun CustomCalendar(state: CalendarState) {
     val cells = state.cells.value
 
     Card {
-        DebugComposable("CustomCalendar")
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -150,7 +147,9 @@ fun CalendarCell(
     event: CalendarEvent? = null
 ) {
     val backgroundColor = if (isToday) Color(0xFFBBDEFB) else Color.Transparent
-    val textColor = if (faded) Color.Gray else Color.Unspecified
+    val textColor = if (faded) Color.Gray
+    else if (isToday) Color.Black
+    else Color.Unspecified
 
     Box(
         modifier = Modifier

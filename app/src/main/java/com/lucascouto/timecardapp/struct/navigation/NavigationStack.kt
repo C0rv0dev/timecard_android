@@ -1,5 +1,6 @@
 package com.lucascouto.timecardapp.struct.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -13,7 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.lucascouto.timecardapp.struct.AppManager
 import com.lucascouto.timecardapp.ui.screens.Home.HomeScreen
 import com.lucascouto.timecardapp.ui.screens.Home.HomeViewModel
+import com.lucascouto.timecardapp.ui.screens.Profile.ProfileScreen
 import com.lucascouto.timecardapp.ui.screens.Splash.SplashScreen
+
 
 @Composable
 fun NavigationStack(appManager: AppManager) {
@@ -25,13 +28,13 @@ fun NavigationStack(appManager: AppManager) {
     NavHost(
         startDestination = if (appManager.shared.isInDebugMode) Screens.Home.route else Screens.Splash.route,
         navController = navController,
-        enterTransition = { slideInHorizontally(animationSpec = tween(1000)) },
-        exitTransition = { slideOutHorizontally(animationSpec = tween(1000)) },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -600 }, animationSpec = tween(1000)) },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { 600 }, animationSpec = tween(1000)) }
+        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Companion.Left, tween(500)) },
+        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500)) },
+        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(500)) },
+        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500)) }
     ) {
         composable(Screens.Splash.route) { backStackEntry -> SplashScreen(navController) }
         composable(route = Screens.Home.route) { backStackEntry -> HomeScreen(homeViewModel, navController) }
-        composable(Screens.Profile.route) { backStackEntry -> Text("Settings Screen") }
+        composable(Screens.Profile.route) { backStackEntry -> ProfileScreen(navController) }
     }
 }
