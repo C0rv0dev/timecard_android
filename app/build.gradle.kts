@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)
 
-    // Lottie animations
+    // Animations
     implementation(libs.lottie.compose)
 
     // Core dependencies

@@ -11,17 +11,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun BasePage(content: @Composable () -> Unit) {
+fun BasePage(
+    navController: NavController,
+    content: @Composable () -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar() }
+        topBar = { TopBar(navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .scrollable(state = rememberScrollState(), orientation = Orientation.Vertical)
+                .scrollable(
+                    state = rememberScrollState(),
+                    orientation = Orientation.Vertical
+                )
         ) {
             content()
         }
@@ -31,7 +39,7 @@ fun BasePage(content: @Composable () -> Unit) {
 @Preview
 @Composable
 fun BasePagePreview() {
-    BasePage {
+    BasePage(rememberNavController()) {
         Text("Hello, World!")
     }
 }
