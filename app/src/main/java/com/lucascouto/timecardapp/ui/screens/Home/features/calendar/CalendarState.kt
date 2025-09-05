@@ -75,17 +75,33 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
         return List(totalCells) { index ->
             when {
                 index < firstDayOfWeek -> CalendarCellData(
-                    prevMonthDays - firstDayOfWeek + index + 1, false, true
+                    date = LocalDate.of(
+                        prevMonth.year,
+                        prevMonth.month,
+                        prevMonthDays - (firstDayOfWeek - index - 1)
+                    ),
+                    isToday = false,
+                    isFaded = true,
+                    event = null
                 )
 
                 index >= firstDayOfWeek + daysInMonth -> CalendarCellData(
-                    index - (firstDayOfWeek + daysInMonth) + 1, false, true
+                    date = LocalDate.of(
+                        currentDate.year,
+                        currentDate.month,
+                        1
+                    )
+                        .plusMonths(1)
+                        .withDayOfMonth(index - firstDayOfWeek - daysInMonth + 1),
+                    isToday = false,
+                    isFaded = true,
+                    event = null
                 )
 
                 else -> {
                     val day = index - firstDayOfWeek + 1
                     CalendarCellData(
-                        day,
+                        date = currentDate.withDayOfMonth(day),
                         isToday = today.dayOfMonth == day && today.month == currentDate.month && today.year == currentDate.year,
                         isFaded = false,
                         event = _events.value.find { it.date.dayOfMonth == day && it.date.month == currentDate.month && it.date.year == currentDate.year }

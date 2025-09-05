@@ -1,6 +1,7 @@
 package com.lucascouto.timecardapp.ui.screens.Home.features.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import com.lucascouto.timecardapp.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,10 @@ import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.models.Calen
 import java.time.LocalDate
 
 @Composable
-fun CustomCalendar(state: CalendarState) {
+fun CustomCalendar(
+    state: CalendarState,
+    onCellClick: (date: String) -> Unit
+) {
     val currentDate = state.currentDate.value
     val cells = state.cells.value
 
@@ -61,7 +65,10 @@ fun CustomCalendar(state: CalendarState) {
 
             CalendarSubHeader()
 
-            CalendarBody(cells = cells)
+            CalendarBody(
+                cells = cells,
+                onCellClick = { date -> onCellClick(date.toString()) }
+            )
         }
     }
 }
@@ -122,7 +129,10 @@ fun CalendarSubHeader() {
 }
 
 @Composable
-fun CalendarBody(cells: List<CalendarCellData>) {
+fun CalendarBody(
+    cells: List<CalendarCellData>,
+    onCellClick: (LocalDate) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         modifier = Modifier.fillMaxWidth(),
@@ -130,10 +140,11 @@ fun CalendarBody(cells: List<CalendarCellData>) {
     ) {
         items(cells.size, key = { cells[it].hashCode() }) { index ->
             CalendarCell(
-                date = cells[index].day,
+                date = cells[index].date.dayOfMonth,
                 isToday = cells[index].isToday,
                 faded = cells[index].isFaded,
-                event = cells[index].event
+                event = cells[index].event,
+                onCellClick = { onCellClick(cells[index].date) }
             )
         }
     }
@@ -144,6 +155,7 @@ fun CalendarCell(
     date: Int,
     isToday: Boolean,
     faded: Boolean,
+    onCellClick: () -> Unit,
     event: CalendarEvent? = null
 ) {
     val backgroundColor = if (isToday) Color(0xFFBBDEFB) else Color.Transparent
@@ -154,8 +166,9 @@ fun CalendarCell(
     Box(
         modifier = Modifier
             .size(40.dp)
-            .background(backgroundColor, shape = CircleShape),
-        contentAlignment = Alignment.Center
+            .background(backgroundColor, shape = CircleShape)
+            .clickable(onClick = onCellClick),
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = date.toString(), color = textColor, fontSize = 14.sp)
 
@@ -177,6 +190,6 @@ fun CalendarCell(
 @Preview
 @Composable
 fun CustomCalendarPreview() {
-    CustomCalendar(CalendarState())
+    CustomCalendar(CalendarState(), {})
 }
 //#endregion Preview

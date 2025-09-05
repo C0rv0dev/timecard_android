@@ -11,7 +11,4 @@ enum class ProfileDestinations(val destination: ProfileDestination) {
 
     val title: String
         get() = destination.title
-
-    val route: String
-        get() = destination.route
 }

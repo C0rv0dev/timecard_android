@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.lucascouto.timecardapp.struct.navigation.Screens
 import com.lucascouto.timecardapp.ui.layout.BasePage
 import com.lucascouto.timecardapp.ui.screens.Home.features.EstimatedSalaryCard
 import com.lucascouto.timecardapp.ui.screens.Home.features.MonthOverviewGraph
@@ -32,7 +34,9 @@ fun HomeScreen(
             Spacer(modifier = Modifier.padding(8.dp))
 
 //        Calendar
-            CustomCalendar(viewModel.calendarState)
+            CustomCalendar(viewModel.calendarState, { date ->
+                navController.navigate("${Screens.ShowEntry.route}/${date}")
+            })
         }
     }
 }
@@ -40,5 +44,5 @@ fun HomeScreen(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(HomeViewModel(), rememberNavController())
+    HomeScreen(viewModel(), rememberNavController())
 }
