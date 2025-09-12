@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,8 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     navController: NavController
 ) {
+    LaunchedEffect(Unit) { viewModel.refreshData() }
+
     BasePage(navController) {
         Column(modifier = Modifier.padding(8.dp)) {
 //        Estimated Salary
@@ -29,14 +32,21 @@ fun HomeScreen(
             Spacer(modifier = Modifier.padding(8.dp))
 
 //        Graph
-            MonthOverviewGraph()
+            MonthOverviewGraph(
+                totalWorkedDays = viewModel.totalWorkedDays,
+                totalWorkedHours = viewModel.totalWorkedHours,
+                totalOvertimeHours = viewModel.totalOvertimeHours
+            )
 
             Spacer(modifier = Modifier.padding(8.dp))
 
 //        Calendar
-            CustomCalendar(viewModel.calendarState, { date ->
-                navController.navigate("${Screens.ShowEntry.route}/${date}")
-            })
+            CustomCalendar(
+                viewModel.calendarState,
+                { date ->
+                    navController.navigate("${Screens.ShowEntry.route}/${date}")
+                }
+            )
         }
     }
 }

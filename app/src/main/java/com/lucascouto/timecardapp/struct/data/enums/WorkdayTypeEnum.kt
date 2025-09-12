@@ -26,5 +26,14 @@ enum class WorkdayTypeEnum(val value: Int) {
                 UNPAID_LEAVE -> "Unpaid Leave"
             }
         }
+
+        fun color(type: Int?): Int {
+            return when (type) {
+                REGULAR.value -> 0xFF4CAF50
+                PAID_LEAVE.value -> 0xFF2196F3
+                UNPAID_LEAVE.value -> 0xFFF44336
+                else -> 0xFF9E9E9E
+            }.toInt()
+        }
     }
 }

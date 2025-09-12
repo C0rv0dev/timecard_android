@@ -42,7 +42,7 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
         if (_workday.value == null) return
 
         // Ensure the workday date matches the selected date
-        _workday.value = _workday.value!!.copy(date = _selectedDate.value)
+        _workday.value = _workday.value!!.copy(date = unparseDate(_selectedDate.value))
 
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
@@ -66,12 +66,11 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
     }
 
     fun findWorkdayByDate(date: String, onComplete: () -> Unit = {}) {
-        val parsedDate = parseDate(date)
-        if (parsedDate.isEmpty()) return
+        if (date.isEmpty()) return
 
         viewModelScope.launch {
             val foundWorkday = withContext(Dispatchers.IO) {
-                workdayRepository.find(parsedDate)
+                workdayRepository.find(date)
             }
 
             if (foundWorkday != null) {
@@ -79,7 +78,7 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
             } else {
                 val newWorkday = WorkdayEntity(
                     id = null,
-                    date = parsedDate,
+                    date = date,
                     shiftType = WorkdayTypeEnum.REGULAR.value,
                     shiftStartHour = "09:00",
                     shiftEndHour = "17:00",
@@ -151,5 +150,21 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
         val yearString = "$year"
 
         return "$dayString/$monthString/$yearString"
+    }
+
+    private fun unparseDate(date: String): String {
+        val parts = date.split("/")
+
+        if (parts.size != 3) return ""
+
+        val day = parts[0].toIntOrNull() ?: return ""
+        val month = parts[1].toIntOrNull() ?: return ""
+        val year = parts[2].toIntOrNull() ?: return ""
+
+        val dayString = if (day < 10) "0$day" else "$day"
+        val monthString = if (month < 10) "0$month" else "$month"
+        val yearString = "$year"
+
+        return "$yearString-$monthString-$dayString"
     }
 }

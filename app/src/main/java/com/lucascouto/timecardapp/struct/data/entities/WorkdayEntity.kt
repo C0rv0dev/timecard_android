@@ -14,6 +14,10 @@ data class WorkdayEntity(
     @ColumnInfo(name = "shift_duration") var shiftDuration: String, // Stored as "HH:mm" string (e.g., "08:00")
     @ColumnInfo(name = "shift_type") var shiftType: Int, // e.g., 1 "Regular", 2 "Overtime", etc.
 ) {
+    fun getLocalDate(): LocalDate {
+        return LocalDate.parse(date)
+    }
+
     companion object {
         fun default(id: Long? = null): WorkdayEntity {
             return WorkdayEntity(

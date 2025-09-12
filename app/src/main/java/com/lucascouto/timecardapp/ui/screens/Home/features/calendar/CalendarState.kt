@@ -21,7 +21,7 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
     private val _currentDate: MutableState<LocalDate> = mutableStateOf(initialDate)
     val currentDate: State<LocalDate> by lazy { _currentDate }
 
-    private val _events = mutableStateOf<List<CalendarEvent>>(generateCalendarEvents(initialDate))
+    private val _events = mutableStateOf<List<CalendarEvent>?>(null)
     private val _cells: MutableState<List<CalendarCellData>> =
         mutableStateOf(generateCalendarCells(initialDate))
     val cells: State<List<CalendarCellData>> by lazy { _cells }
@@ -29,16 +29,34 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
     // Initializer
     init {
         scope.launch {
-            _events.value = generateCalendarEvents(LocalDate.now())
             withContext(Dispatchers.Main) {
                 updateMonth(_currentDate.value)
             }
         }
     }
 
+    // Callbacks
+    var onNextMonth: (() -> Unit)? = null
+    var onPreviousMonth: (() -> Unit)? = null
+
     // Methods
-    fun goToNextMonth() = updateMonth(_currentDate.value.plusMonths(1))
-    fun goToPreviousMonth() = updateMonth(_currentDate.value.minusMonths(1))
+    fun goToNextMonth() {
+        updateMonth(_currentDate.value.plusMonths(1))
+        onNextMonth?.invoke()
+    }
+    fun goToPreviousMonth() {
+        updateMonth(_currentDate.value.minusMonths(1))
+        onPreviousMonth?.invoke()
+    }
+
+    fun setEvents(events: List<CalendarEvent>) {
+        _events.value = events
+        updateMonth(_currentDate.value)
+    }
+
+    fun yearMonth(): String {
+        return "${_currentDate.value.year}-${_currentDate.value.monthValue.toString().padStart(2, '0')}"
+    }
 
     private fun updateMonth(newDate: LocalDate) {
         _currentDate.value = newDate
@@ -48,18 +66,6 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
             withContext(Dispatchers.Main) {
                 _cells.value = newCells
             }
-        }
-    }
-
-    private fun generateCalendarEvents(currentDate: LocalDate): List<CalendarEvent> {
-        // generate one event for each odd day of the month
-        val daysInMonth = currentDate.lengthOfMonth()
-        return (1..daysInMonth).filter { it % 2 == 0 }.map { day ->
-            CalendarEvent(
-                date = currentDate.withDayOfMonth(day),
-                // pick a random color
-                color = listOf(0xFFE57373, 0xFF81C784, 0xFF64B5F6).random().toInt()
-            )
         }
     }
 
@@ -104,7 +110,7 @@ class CalendarState(initialDate: LocalDate = LocalDate.now()) {
                         date = currentDate.withDayOfMonth(day),
                         isToday = today.dayOfMonth == day && today.month == currentDate.month && today.year == currentDate.year,
                         isFaded = false,
-                        event = _events.value.find { it.date.dayOfMonth == day && it.date.month == currentDate.month && it.date.year == currentDate.year }
+                        event = _events.value?.find { it.date.dayOfMonth == day && it.date.month == currentDate.month && it.date.year == currentDate.year }
                     )
                 }
             }
