@@ -1,12 +1,24 @@
 package com.lucascouto.timecardapp.ui.screens.Entry.Add
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,23 +27,109 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.lucascouto.timecardapp.R
+import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
+import com.lucascouto.timecardapp.ui.components.SelectEnum
+import com.lucascouto.timecardapp.ui.components.TimePickerDialog
 import com.lucascouto.timecardapp.ui.layout.BasePage
 import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import java.time.LocalDate
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEntryScreen(
     viewModel: EntryViewModel,
     navController: NavController,
+    date: String
 ) {
+    LaunchedEffect(Unit) { viewModel.setSelectedDate(date) }
+
     BasePage(navController) {
-        Column(Modifier.fillMaxWidth().padding(8.dp)) {
-            Card(Modifier.padding(8.dp).fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+            Card(Modifier.fillMaxWidth()) {
                 Text(
                     viewModel.selectedDate.value,
                     modifier = Modifier.padding(16.dp).fillMaxWidth(),
                     style = TextStyle(fontSize = 24.sp),
                     textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(Modifier.padding(4.dp))
+
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    SelectEnum(
+                        options = WorkdayTypeEnum.list(),
+                        selected = viewModel.workday.value!!.shiftType,
+                        onSelect = { type -> viewModel.setWorkday(
+                            viewModel.workday.value!!.copy(shiftType = type)
+                        ) },
+                    )
+
+                    Spacer(Modifier.padding(4.dp))
+
+                    TimePickerDialog(
+                        displayValue = viewModel.workday.value!!.shiftStartHour,
+                        onConfirm = { state -> viewModel.setWorkday(
+                            viewModel.workday.value!!.copy(shiftStartHour = "${state.hour}:${state.minute}")
+                        ) },
+                    )
+
+                    Spacer(Modifier.padding(4.dp))
+
+                    TimePickerDialog(
+                        displayValue = viewModel.workday.value!!.shiftEndHour,
+                        onConfirm = { state -> viewModel.setWorkday(
+                            viewModel.workday.value!!.copy(shiftEndHour = "${state.hour}:${state.minute}")
+                        ) },
+                    )
+
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+                    Row(Modifier.padding(8.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Duration")
+                        Text(viewModel.workday.value!!.shiftDuration)
+                    }
+                }
+            }
+
+            Spacer(Modifier.padding(8.dp))
+
+            ElevatedButton(
+                onClick = { viewModel.saveWorkday { navController.popBackStack() } },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonColors(
+                    containerColor = Color(0xFF4CAF50),
+                    contentColor = Color.Black,
+                    disabledContainerColor = Color(0x804CAF50),
+                    disabledContentColor = Color(0x80000000)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_save),
+                    contentDescription = "Add",
+                    Modifier.size(32.dp)
+
+                )
+            }
+
+            Spacer(Modifier.padding(4.dp))
+
+            ElevatedButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonColors(
+                    containerColor = Color(0xFFB00020),
+                    contentColor = Color.Black,
+                    disabledContainerColor = Color(0x80B00020),
+                    disabledContentColor = Color(0x80000000)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_cancel),
+                    contentDescription = "Delete",
+                    Modifier.size(32.dp)
                 )
             }
         }
@@ -41,5 +139,5 @@ fun AddEntryScreen(
 @Preview
 @Composable
 fun AddEntryScreenPreview() {
-    AddEntryScreen(viewModel(), rememberNavController())
+    AddEntryScreen(viewModel(), rememberNavController(), LocalDate.now().toString())
 }

@@ -31,6 +31,7 @@ fun ShowEntryScreen(
 ) {
     LaunchedEffect(Unit) {
         viewModel.setSelectedDate(date)
+        viewModel.findWorkdayByDate(date)
     }
 
     BasePage(navController) {
@@ -38,7 +39,11 @@ fun ShowEntryScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = if (viewModel.workday.value != null) "Workday ID: ${viewModel.workday.value?.id}" else "Add New Entry",
+                        text =
+                            if (viewModel.workday.value != null && viewModel.workday.value!!.id != null)
+                                "Workday ID: ${viewModel.workday.value?.id}"
+                            else
+                                "Add New Entry",
                         textAlign = TextAlign.Center
                     )
 
@@ -60,7 +65,12 @@ fun ShowEntryScreen(
 
             Spacer(Modifier.padding(8.dp))
 
-            WorkdayInformationCard(navController, date, viewModel.workday.value)
+            WorkdayInformationCard(
+                viewModel,
+                navController,
+                date,
+                viewModel.workday.value
+            )
         }
     }
 }

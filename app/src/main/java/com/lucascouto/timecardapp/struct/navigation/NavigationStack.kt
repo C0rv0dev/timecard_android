@@ -70,7 +70,7 @@ fun NavigationStack(appManager: AppManager) {
             )
         ) { backStackEntry ->
             val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
-            AddEntryScreen(entryViewModel, navController)
+            AddEntryScreen(entryViewModel, navController, date)
         }
     }
 }

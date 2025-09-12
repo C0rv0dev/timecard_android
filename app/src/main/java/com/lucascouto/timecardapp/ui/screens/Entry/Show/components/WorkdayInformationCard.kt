@@ -19,22 +19,25 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.lucascouto.timecardapp.R
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
+import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.navigation.Screens
+import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import java.time.LocalDate
 
 @Composable
 fun WorkdayInformationCard(
+    viewModel: EntryViewModel,
     navController: NavController,
     date: String,
     workday: WorkdayEntity? = null,
 ) {
     Card {
-        if (workday == null) {
+        if (workday == null || workday.id == null) {
             Column(
                 Modifier
                     .padding(8.dp)
@@ -42,14 +45,9 @@ fun WorkdayInformationCard(
             ) {
                 Text(
                     "If you believe this is an error, please contact support.",
-                    Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
+                    Modifier.padding(top = 8.dp).fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    style = TextStyle(
-                        fontSize = 10.sp,
-                        color = Color(0x80B00020)
-                    )
+                    style = TextStyle(color = Color(0x80B00020))
                 )
 
                 Text(
@@ -63,7 +61,7 @@ fun WorkdayInformationCard(
 
                 // green 0xFF4CAF50
                 ElevatedButton(
-                    onClick = { navController.navigate("${Screens.AddEntry.route}/${date}") },
+                    onClick = { navController.navigate(Screens.AddEntry.route + "/$date") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonColors(
                         containerColor = Color(0xFF4CAF50),
@@ -91,7 +89,7 @@ fun WorkdayInformationCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Workday Type")
-                    Text(workday.shiftType.toString())
+                    Text(WorkdayTypeEnum.from(workday.shiftType))
                 }
 
                 Row(
@@ -144,7 +142,7 @@ fun WorkdayInformationCard(
 
                 // red 0xFFB00020
                 ElevatedButton(
-                    onClick = {},
+                    onClick = { viewModel.deleteWorkday { navController.popBackStack() } },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonColors(
                         containerColor = Color(0xFFB00020),
@@ -167,14 +165,20 @@ fun WorkdayInformationCard(
 @Composable
 fun WorkdayInformationCardWorkdayPreview() {
     WorkdayInformationCard(
+        viewModel(),
         rememberNavController(),
         LocalDate.now().toString(),
-        WorkdayEntity.default()
+        WorkdayEntity.default(-1)
     )
 }
 
 @Preview
 @Composable
 fun WorkdayInformationCardNullPreview() {
-    WorkdayInformationCard(rememberNavController(), LocalDate.now().toString(), null)
+    WorkdayInformationCard(
+        viewModel(),
+        rememberNavController(),
+        LocalDate.now().toString(),
+        null
+    )
 }
