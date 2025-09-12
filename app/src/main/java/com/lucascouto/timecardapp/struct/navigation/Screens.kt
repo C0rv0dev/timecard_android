@@ -5,5 +5,7 @@ sealed class Screens(val route: String) {
     object Home : Screens("home")
     object Profile : Screens("details")
     object ShowEntry : Screens("show_entry")
+    object AddEntry : Screens("add_entry")
+    object EditEntry : Screens("edit_entry")
     // Add other screens as needed
 }

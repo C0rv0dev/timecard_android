@@ -20,7 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MonthOverviewGraph(totalWorkedHours: Int = 120, totalOvertimeHours: Int = 20) {
+fun MonthOverviewGraph(
+    totalWorkedDays: Int = 20,
+    totalWorkedHours: Int = 120,
+    totalOvertimeHours: Int = 20
+) {
     val gapSize = 3
 
     Card {
@@ -34,6 +38,26 @@ fun MonthOverviewGraph(totalWorkedHours: Int = 120, totalOvertimeHours: Int = 20
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
+                Text("Total Worked Days", style = TextStyle(fontSize = 16.sp))
+
+                Row {
+                    for (i in 0 until gapSize) {
+                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
+                    }
+                }
+
+                Text(
+                    "${totalWorkedDays} days",
+                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
+                )
+            }
+
+            Spacer(Modifier.padding(4.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
                 Text("Total Worked Hours", style = TextStyle(fontSize = 16.sp))
 
                 Row {
@@ -43,7 +67,7 @@ fun MonthOverviewGraph(totalWorkedHours: Int = 120, totalOvertimeHours: Int = 20
                 }
 
                 Text(
-                    "${totalWorkedHours}h",
+                    "${totalWorkedHours} hours",
                     style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
                 )
             }
@@ -63,7 +87,7 @@ fun MonthOverviewGraph(totalWorkedHours: Int = 120, totalOvertimeHours: Int = 20
                 }
 
                 Text(
-                    "${totalOvertimeHours}h",
+                    "${totalOvertimeHours} hours",
                     style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
                 )
             }

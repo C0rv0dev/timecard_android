@@ -3,6 +3,7 @@ package com.lucascouto.timecardapp.struct.data.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 
 @Entity(tableName = "workdays")
 data class WorkdayEntity(
@@ -11,5 +12,18 @@ data class WorkdayEntity(
     @ColumnInfo(name = "shift_start_hour") val shiftStartHour: String, // Stored as "HH:mm" string (e.g., "09:00")
     @ColumnInfo(name = "shift_end_hour") val shiftEndHour: String, // Stored as "HH:mm" string (e.g., "17:00")
     @ColumnInfo(name = "shift_duration") val shiftDuration: String, // Stored as "HH:mm" string (e.g., "08:00")
-    @ColumnInfo(name = "shift_type") val shiftType: String, // e.g., "Regular", "Overtime", etc.
-)
+    @ColumnInfo(name = "shift_type") val shiftType: Int, // e.g., 1 "Regular", 2 "Overtime", etc.
+) {
+    companion object {
+        fun default(): WorkdayEntity {
+            return WorkdayEntity(
+                id = 0L,
+                date = LocalDate.now().toString(),
+                shiftStartHour = "08:00",
+                shiftEndHour = "17:00",
+                shiftDuration = "08:00",
+                shiftType = 1
+            )
+        }
+    }
+}

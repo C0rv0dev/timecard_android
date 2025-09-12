@@ -11,8 +11,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lucascouto.timecardapp.struct.AppManager
+import com.lucascouto.timecardapp.ui.screens.Entry.Add.AddEntryScreen
 import com.lucascouto.timecardapp.ui.screens.Entry.Show.ShowEntryScreen
-import com.lucascouto.timecardapp.ui.screens.Entry.Show.ShowEntryViewModel
+import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import com.lucascouto.timecardapp.ui.screens.Home.HomeScreen
 import com.lucascouto.timecardapp.ui.screens.Home.HomeViewModel
 import com.lucascouto.timecardapp.ui.screens.Profile.ProfileScreen
@@ -26,7 +27,7 @@ fun NavigationStack(appManager: AppManager) {
 
     // Define viewModels here if needed and pass them to screens
     val homeViewModel = remember { HomeViewModel() }
-    val showEntryViewModel = remember { ShowEntryViewModel() }
+    val entryViewModel = remember { EntryViewModel() }
 
     NavHost(
         startDestination = if (appManager.shared.isInDebugMode) Screens.Home.route else Screens.Splash.route,
@@ -36,9 +37,13 @@ fun NavigationStack(appManager: AppManager) {
         popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(500)) },
         popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500)) }
     ) {
+        // Main
         composable(Screens.Splash.route) { backStackEntry -> SplashScreen(navController) }
         composable(route = Screens.Home.route) { backStackEntry -> HomeScreen(homeViewModel, navController) }
         composable(Screens.Profile.route) { backStackEntry -> ProfileScreen(navController) }
+
+        // Entries
+        // Show
         composable(
             Screens.ShowEntry.route + "/{date}",
             arguments = listOf(
@@ -50,7 +55,22 @@ fun NavigationStack(appManager: AppManager) {
             )
         ) { backStackEntry ->
             val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
-            ShowEntryScreen(showEntryViewModel, navController, date)
+            ShowEntryScreen(entryViewModel, navController, date)
+        }
+
+        // Add
+        composable(
+            Screens.AddEntry.route + "/{date}",
+            arguments = listOf(
+                navArgument("date") {
+                    type = NavType.StringType
+                    defaultValue = LocalDate.now().toString()
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+            AddEntryScreen(entryViewModel, navController)
         }
     }
 }

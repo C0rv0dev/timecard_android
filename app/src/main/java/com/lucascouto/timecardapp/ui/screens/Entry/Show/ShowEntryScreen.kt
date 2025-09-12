@@ -19,11 +19,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.lucascouto.timecardapp.ui.layout.BasePage
+import com.lucascouto.timecardapp.ui.screens.Entry.Show.components.WorkdayInformationCard
+import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import java.time.LocalDate
 
 @Composable
 fun ShowEntryScreen(
-    viewModel: ShowEntryViewModel,
+    viewModel: EntryViewModel,
     navController: NavController,
     date: String
 ) {
@@ -32,15 +34,11 @@ fun ShowEntryScreen(
     }
 
     BasePage(navController) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "Workday ID: ${viewModel.workday.value?.id ?: "N/A"}",
+                        text = if (viewModel.workday.value != null) "Workday ID: ${viewModel.workday.value?.id}" else "Add New Entry",
                         textAlign = TextAlign.Center
                     )
 
@@ -60,20 +58,16 @@ fun ShowEntryScreen(
                 }
             }
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
+            Spacer(Modifier.padding(8.dp))
 
-            }
+            WorkdayInformationCard(navController, date, viewModel.workday.value)
         }
     }
 }
 
 @Preview
 @Composable
-fun AddEntryScreenPreview() {
+fun ShowEntryScreenPreview() {
     ShowEntryScreen(
         viewModel(),
         rememberNavController(),

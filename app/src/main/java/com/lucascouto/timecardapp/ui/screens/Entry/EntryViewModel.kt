@@ -1,4 +1,4 @@
-package com.lucascouto.timecardapp.ui.screens.Entry.Show
+package com.lucascouto.timecardapp.ui.screens.Entry
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class ShowEntryViewModel(private val workdayRepository: WorkdayRepository = DatabaseProvider.workdayRepository) :
+class EntryViewModel(private val workdayRepository: WorkdayRepository = DatabaseProvider.workdayRepository) :
     ViewModel() {
     // Vars
     private val _selectedDate: MutableState<String> = mutableStateOf("")
