@@ -1,10 +1,14 @@
 package com.lucascouto.timecardapp.ui.screens.Home
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
+import com.lucascouto.timecardapp.struct.data.logic.WorkdaysDataLogic
 import com.lucascouto.timecardapp.struct.data.repositories.WorkdayRepository
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.CalendarState
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.models.CalendarEvent
@@ -22,20 +26,20 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
     private lateinit var _workdays: List<WorkdayEntity>
 
     // Estimated Salary
-    private var _estimatedSalary = 123456
-    val estimatedSalary by lazy { _estimatedSalary }
+    private var _estimatedSalary: MutableState<Int?> = mutableStateOf(null)
+    val estimatedSalary: State<Int?> by lazy { _estimatedSalary }
 
     // Total worked hours
-    private var _totalWorkedHours = 160
-    val totalWorkedHours by lazy { _totalWorkedHours }
+    private var _totalWorkedHours: MutableState<Int?> = mutableStateOf(null)
+    val totalWorkedHours: State<Int?> by lazy { _totalWorkedHours }
 
     // Total worked days
-    private var _totalWorkedDays = 20
-    val totalWorkedDays by lazy { _totalWorkedDays }
+    private var _totalWorkedDays: MutableState<Int?> = mutableStateOf(null)
+    val totalWorkedDays: State<Int?> by lazy { _totalWorkedDays }
 
     // Total overtime hours
-    private var _totalOvertimeHours = 10
-    val totalOvertimeHours by lazy { _totalOvertimeHours }
+    private var _totalOvertimeHours: MutableState<Int?> = mutableStateOf(null)
+    val totalOvertimeHours: State<Int?> by lazy { _totalOvertimeHours }
 
     // Init
     init {
@@ -49,6 +53,8 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
             _workdays = withContext(Dispatchers.Default) {
                 workdayRepository.fetchByMonth(_calendarState.yearMonth())
             }.also { workdays ->
+                val workdaysDataLogic = WorkdaysDataLogic(workdays)
+
                 // Events
                 val events: List<CalendarEvent> = workdays.map {
                     CalendarEvent(
@@ -58,7 +64,11 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
                 }
 
                 _calendarState.setEvents(events)
-                _totalWorkedDays = workdays.size
+
+                _estimatedSalary.value = workdaysDataLogic.calculateEstimatedSalary()
+                _totalWorkedHours.value = workdaysDataLogic.calculateTotalWorkedHours()
+                _totalWorkedDays.value = workdaysDataLogic.calculateTotalWorkedDays()
+                _totalOvertimeHours.value = workdaysDataLogic.calculateTotalOvertimeHours()
             }
         }
     }

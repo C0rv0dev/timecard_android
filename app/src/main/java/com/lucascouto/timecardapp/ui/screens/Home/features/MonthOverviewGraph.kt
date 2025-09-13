@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MonthOverviewGraph(
-    totalWorkedDays: Int = 20,
-    totalWorkedHours: Int = 120,
-    totalOvertimeHours: Int = 20
+    totalWorkedDays: Int? = 20,
+    totalWorkedHours: Int? = 120,
+    totalOvertimeHours: Int? = 20
 ) {
     val gapSize = 3
 
@@ -46,10 +46,12 @@ fun MonthOverviewGraph(
                     }
                 }
 
-                Text(
-                    "${totalWorkedDays} days",
-                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                )
+                if (totalWorkedDays != null) {
+                    Text(
+                        if (totalWorkedDays > 1) "$totalWorkedDays days" else "$totalWorkedDays day",
+                        style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
+                    )
+                }
             }
 
             Spacer(Modifier.padding(4.dp))
@@ -67,7 +69,7 @@ fun MonthOverviewGraph(
                 }
 
                 Text(
-                    "${totalWorkedHours} hours",
+                    "$totalWorkedHours hours",
                     style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
                 )
             }
@@ -87,7 +89,7 @@ fun MonthOverviewGraph(
                 }
 
                 Text(
-                    "${totalOvertimeHours} hours",
+                    "$totalOvertimeHours hours",
                     style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
                 )
             }

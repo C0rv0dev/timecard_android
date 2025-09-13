@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun EstimatedSalaryCard(estimatedSalary: Int = 123456) {
+fun EstimatedSalaryCard(estimatedSalary: Int? = 123456) {
     val formattedSalary = String.format("%,d", estimatedSalary).replace(',', '.')
 
     Card {

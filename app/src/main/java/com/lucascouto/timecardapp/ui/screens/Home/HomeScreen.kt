@@ -27,15 +27,15 @@ fun HomeScreen(
     BasePage(navController) {
         Column(modifier = Modifier.padding(8.dp)) {
 //        Estimated Salary
-            EstimatedSalaryCard(viewModel.estimatedSalary)
+            EstimatedSalaryCard(viewModel.estimatedSalary.value)
 
             Spacer(modifier = Modifier.padding(8.dp))
 
 //        Graph
             MonthOverviewGraph(
-                totalWorkedDays = viewModel.totalWorkedDays,
-                totalWorkedHours = viewModel.totalWorkedHours,
-                totalOvertimeHours = viewModel.totalOvertimeHours
+                totalWorkedDays = viewModel.totalWorkedDays.value,
+                totalWorkedHours = viewModel.totalWorkedHours.value,
+                totalOvertimeHours = viewModel.totalOvertimeHours.value
             )
 
             Spacer(modifier = Modifier.padding(8.dp))
