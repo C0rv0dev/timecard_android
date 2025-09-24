@@ -23,7 +23,6 @@ fun SelectEnum(
     selected: Int? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf<Int?>(selected) }
 
     Box(
         modifier = Modifier
@@ -31,7 +30,7 @@ fun SelectEnum(
             .clickable { expanded = true }
     ) {
         OutlinedTextField(
-            value = WorkdayTypeEnum.from(selectedOption),
+            value = WorkdayTypeEnum.from(selected),
             onValueChange = {},
             readOnly = true,
             enabled = false,
@@ -48,7 +47,6 @@ fun SelectEnum(
                     text = { Text(option.first) },
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        selectedOption = option.second
                         onSelect(option.second)
                         expanded = false
                     },

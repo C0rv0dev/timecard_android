@@ -1,6 +1,7 @@
 package com.lucascouto.timecardapp.struct.data.logic
 
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
+import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     // Vars
@@ -9,13 +10,9 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         val hourlyPay = 1000 // TODO: Fetch from settings
         val baseWorkdayHours = 8 // TODO: Fetch from settings
 
-        // Lunch
-        val lunchStartHour = "21:00" // TODO: Fetch from settings
-        val lunchBreakMinutes = 60 // TODO: Fetch from settings
-
         // Rates
-        val overtimeRateMultiplier = .25 // TODO: Fetch from settings
-        val lateNightRateMultiplier = .25 // TODO: Fetch from settings
+        val overtimeRateMultiplier = 25 / 100 // TODO: Fetch from settings
+        val lateNightRateMultiplier = 25 / 100 // TODO: Fetch from settings
         val lateNightStart = "22:00" // TODO: Fetch from settings
         val lateNightEnd = "05:00" // TODO: Fetch from settings
     }
@@ -31,15 +28,16 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var totalWorkedMinutes = 0
 
         for (workday in workdays) {
-            val startParts = splitTime(workday.shiftStartHour) ?: continue
-            val endParts = splitTime(workday.shiftEndHour) ?: continue
+            val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
+            val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
 
             val startMinutes = startParts.first * 60 + startParts.second
             val endMinutes = endParts.first * 60 + endParts.second
+
             val workedMinutes =
                 if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
 
-            totalWorkedMinutes += workedMinutes - lunchBreakMinutes
+            totalWorkedMinutes += workedMinutes - workday.lunchDurationMinutes
         }
 
         return totalWorkedMinutes / 60
@@ -49,15 +47,15 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var totalOvertimeMinutes = 0
 
         for (workday in workdays) {
-            val startParts = splitTime(workday.shiftStartHour) ?: continue
-            val endParts = splitTime(workday.shiftEndHour) ?: continue
+            val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
+            val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
 
             val startMinutes = startParts.first * 60 + startParts.second
             val endMinutes = endParts.first * 60 + endParts.second
             val workedMinutes =
                 if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
 
-            val effectiveWorkedMinutes = workedMinutes - lunchBreakMinutes
+            val effectiveWorkedMinutes = workedMinutes - workday.lunchDurationMinutes
             val overtimeMinutes = (effectiveWorkedMinutes - baseWorkdayHours * 60).coerceAtLeast(0)
 
             totalOvertimeMinutes += overtimeMinutes
@@ -76,16 +74,16 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var workedMinutesSoFar = 0
 
         // Convert times to minutes
-        val end = convertTimeToMinutes(workday.shiftEndHour) ?: return 0
-        val start = convertTimeToMinutes(workday.shiftStartHour) ?: return 0
+        val end = TimeUtils.convertTimeToMinutes(workday.shiftEndHour) ?: return 0
+        val start = TimeUtils.convertTimeToMinutes(workday.shiftStartHour) ?: return 0
 
         // Handle overnight
         val shiftEnd = if (end <= start) end + 24 * 60 else end
 
         // Define break
-        val lunchStart = convertTimeToMinutes(lunchStartHour) ?: return 0
-        val lunchStartAbs = if (lunchStart < start) lunchStart + 24 * 60 else lunchStart
-        val lunchEndAbs = lunchStartAbs + lunchBreakMinutes
+        val lunchStart = TimeUtils.convertTimeToMinutes(workday.lunchStartHour) ?: return 0
+        val lunchStartAbs = if (lunchStart < start) lunchStart + 24 * workday.lunchDurationMinutes else lunchStart
+        val lunchEndAbs = lunchStartAbs + workday.lunchDurationMinutes
 
         // Calculate salary minute by minute
         var current = start
@@ -116,20 +114,8 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     }
 
     private fun isLateNight(minuteOfDay: Int): Boolean {
-        val lateStart = convertTimeToMinutes(lateNightStart) ?: return false
-        val lateEnd = convertTimeToMinutes(lateNightEnd) ?: return false
+        val lateStart = TimeUtils.convertTimeToMinutes(lateNightStart) ?: return false
+        val lateEnd = TimeUtils.convertTimeToMinutes(lateNightEnd) ?: return false
         return if (lateStart < lateEnd) minuteOfDay in lateStart until lateEnd else { minuteOfDay >= lateStart || minuteOfDay < lateEnd }
-    }
-
-    private fun splitTime(time: String): Pair<Int, Int>? {
-        val parts = time.split(":").mapNotNull { it.toIntOrNull() }
-        if (parts.size != 2) return null
-        return Pair(parts[0], parts[1])
-    }
-
-    private fun convertTimeToMinutes(time: String): Int? {
-        val parts = time.split(":").mapNotNull { it.toIntOrNull() }
-        if (parts.size != 2) return null
-        return parts[0] * 60 + parts[1]
     }
 }

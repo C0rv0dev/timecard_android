@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
-import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.data.repositories.WorkdayRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,19 +21,26 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
     val _workday: MutableState<WorkdayEntity?> = mutableStateOf(null)
     val workday: State<WorkdayEntity?> by lazy { _workday }
 
+    // Boot
+    fun boot(date: String): EntryViewModel {
+        _selectedDate.value = parseDate(date)
+        findWorkdayByDate(date)
+
+        return this
+    }
+
     // Methods
     fun setWorkday(workday: WorkdayEntity?) {
         if (workday == null) return
 
+        // Shift parse
         workday.shiftStartHour = parseTime(workday.shiftStartHour)
         workday.shiftEndHour = parseTime(workday.shiftEndHour)
         workday.shiftDuration = calculateDuration(workday.shiftStartHour, workday.shiftEndHour)
+        // Lunch parse
+        workday.lunchStartHour = parseTime(workday.lunchStartHour)
 
         _workday.value = workday
-    }
-
-    fun setSelectedDate(date: String) {
-        _selectedDate.value = parseDate(date)
     }
 
     // Workday Methods
@@ -47,6 +53,21 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
                 workdayRepository.create(workday.value!!)
+            }
+
+            onComplete()
+        }
+    }
+
+    fun editWorkday(onComplete: () -> Unit) {
+        if (_workday.value == null || _workday.value!!.id == null) return
+
+        // Ensure the workday date matches the selected date
+        _workday.value = _workday.value!!.copy(date = unparseDate(_selectedDate.value))
+
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                workdayRepository.update(workday.value!!)
             }
 
             onComplete()
@@ -76,16 +97,7 @@ class EntryViewModel(private val workdayRepository: WorkdayRepository = Database
             if (foundWorkday != null) {
                 setWorkday(foundWorkday)
             } else {
-                val newWorkday = WorkdayEntity(
-                    id = null,
-                    date = date,
-                    shiftType = WorkdayTypeEnum.REGULAR.value,
-                    shiftStartHour = "09:00",
-                    shiftEndHour = "17:00",
-                    shiftDuration = "08:00",
-                )
-
-                setWorkday(newWorkday)
+                setWorkday(WorkdayEntity.default())
             }
 
             onComplete()

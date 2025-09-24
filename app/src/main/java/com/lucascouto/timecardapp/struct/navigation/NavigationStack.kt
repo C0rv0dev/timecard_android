@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,11 +15,11 @@ import androidx.navigation.navArgument
 import com.lucascouto.timecardapp.struct.AppManager
 import com.lucascouto.timecardapp.ui.screens.Entry.Add.AddEntryScreen
 import com.lucascouto.timecardapp.ui.screens.Entry.Show.ShowEntryScreen
-import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import com.lucascouto.timecardapp.ui.screens.Home.HomeScreen
 import com.lucascouto.timecardapp.ui.screens.Home.HomeViewModel
 import com.lucascouto.timecardapp.ui.screens.Profile.ProfileScreen
 import com.lucascouto.timecardapp.ui.screens.Splash.SplashScreen
+import com.lucascouto.timecardapp.ui.viewmodel.factories.EntryViewModelFactory
 import java.time.LocalDate
 
 
@@ -27,7 +29,6 @@ fun NavigationStack(appManager: AppManager) {
 
     // Define viewModels here if needed and pass them to screens
     val homeViewModel = remember { HomeViewModel() }
-    val entryViewModel = remember { EntryViewModel() }
 
     NavHost(
         startDestination = if (appManager.shared.isInDebugMode) Screens.Home.route else Screens.Splash.route,
@@ -54,8 +55,20 @@ fun NavigationStack(appManager: AppManager) {
                 }
             )
         ) { backStackEntry ->
+            val owner = LocalViewModelStoreOwner.current
             val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
-            ShowEntryScreen(entryViewModel, navController, date)
+
+            owner?.let {
+                ShowEntryScreen(
+                    viewModel(
+                        it,
+                        "ShowEntryViewModel",
+                        EntryViewModelFactory(date)
+                    ),
+                    navController,
+                    date
+                )
+            }
         }
 
         // Add
@@ -69,8 +82,46 @@ fun NavigationStack(appManager: AppManager) {
                 }
             )
         ) { backStackEntry ->
+            val owner = LocalViewModelStoreOwner.current
             val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
-            AddEntryScreen(entryViewModel, navController, date)
+
+            owner?.let {
+                AddEntryScreen(
+                    viewModel(
+                        it,
+                        "AddEntryViewModel",
+                        EntryViewModelFactory(date)
+                    ),
+                    navController,
+                )
+            }
+        }
+
+        // Edit Entry
+        composable(
+            Screens.EditEntry.route + "/{date}",
+            arguments = listOf(
+                navArgument("date") {
+                    type = NavType.StringType
+                    defaultValue = LocalDate.now().toString()
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val owner = LocalViewModelStoreOwner.current
+            val date = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+
+            owner?.let {
+                AddEntryScreen(
+                    viewModel = viewModel(
+                        it,
+                        "EditEntryViewModel",
+                        EntryViewModelFactory(date)
+                    ),
+                    navController = navController,
+                    isEditing = true
+                )
+            }
         }
     }
 }

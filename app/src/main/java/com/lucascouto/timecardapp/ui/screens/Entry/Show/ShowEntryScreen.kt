@@ -29,10 +29,7 @@ fun ShowEntryScreen(
     navController: NavController,
     date: String
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.setSelectedDate(date)
-        viewModel.findWorkdayByDate(date)
-    }
+    LaunchedEffect(Unit) { viewModel.findWorkdayByDate(date) }
 
     BasePage(navController) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {

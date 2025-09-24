@@ -22,25 +22,29 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePickerDialog(
-    displayValue: String,
+    label: String,
+    displayValue: String?,
     onConfirm: (TimePickerState) -> Unit
 ) {
     var open by remember { mutableStateOf(false) }
     val currentTime = Calendar.getInstance()
 
+    // if displayValue is null, use current time, else parse displayValue
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
+        initialHour = displayValue?.split(":")?.getOrNull(0)?.toIntOrNull()
+            ?: currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = displayValue?.split(":")?.getOrNull(1)?.toIntOrNull()
+            ?: currentTime.get(Calendar.MINUTE)
     )
 
     // Open the dialog
     Box(modifier = Modifier.fillMaxWidth().clickable { open = true }) {
         OutlinedTextField(
-            value = displayValue,
+            value = displayValue ?: "",
             onValueChange = {},
             readOnly = true,
             enabled = false,
-            label = { Text("Select Time") },
+            label = { Text(label) },
             modifier = Modifier.fillMaxWidth()
         )
     }

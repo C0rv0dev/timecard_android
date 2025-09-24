@@ -7,15 +7,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -40,12 +42,15 @@ import java.time.LocalDate
 fun AddEntryScreen(
     viewModel: EntryViewModel,
     navController: NavController,
-    date: String
+    isEditing: Boolean = false,
 ) {
-    LaunchedEffect(Unit) { viewModel.setSelectedDate(date) }
+    val scrollState = rememberScrollState()
 
     BasePage(navController) {
-        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+        Column(Modifier.fillMaxWidth()
+            .padding(12.dp)
+            .verticalScroll(scrollState)
+        ) {
             Card(Modifier.fillMaxWidth()) {
                 Text(
                     viewModel.selectedDate.value,
@@ -61,35 +66,72 @@ fun AddEntryScreen(
                 Column(Modifier.padding(16.dp)) {
                     SelectEnum(
                         options = WorkdayTypeEnum.list(),
-                        selected = viewModel.workday.value!!.shiftType,
-                        onSelect = { type -> viewModel.setWorkday(
-                            viewModel.workday.value!!.copy(shiftType = type)
-                        ) },
+                        selected = viewModel.workday.value?.shiftType ?: WorkdayTypeEnum.REGULAR.value,
+                        onSelect = { type ->
+                            viewModel.setWorkday(
+                                viewModel.workday.value?.copy(shiftType = type)
+                            )
+                        },
                     )
 
                     Spacer(Modifier.padding(4.dp))
 
                     TimePickerDialog(
-                        displayValue = viewModel.workday.value!!.shiftStartHour,
-                        onConfirm = { state -> viewModel.setWorkday(
-                            viewModel.workday.value!!.copy(shiftStartHour = "${state.hour}:${state.minute}")
-                        ) },
+                        label = "Shift Start",
+                        displayValue = viewModel.workday.value?.shiftStartHour,
+                        onConfirm = { state ->
+                            viewModel.setWorkday(
+                                viewModel.workday.value?.copy(shiftStartHour = "${state.hour}:${state.minute}")
+                            )
+                        },
                     )
 
                     Spacer(Modifier.padding(4.dp))
 
                     TimePickerDialog(
-                        displayValue = viewModel.workday.value!!.shiftEndHour,
-                        onConfirm = { state -> viewModel.setWorkday(
-                            viewModel.workday.value!!.copy(shiftEndHour = "${state.hour}:${state.minute}")
-                        ) },
+                        label = "Shift End",
+                        displayValue = viewModel.workday.value?.shiftEndHour,
+                        onConfirm = { state ->
+                            viewModel.setWorkday(
+                                viewModel.workday.value?.copy(shiftEndHour = "${state.hour}:${state.minute}")
+                            )
+                        },
                     )
 
-                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-                    Row(Modifier.padding(8.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    TimePickerDialog(
+                        label = "Lunch Start",
+                        displayValue = viewModel.workday.value?.lunchStartHour,
+                        onConfirm = { state ->
+                            viewModel.setWorkday(
+                                viewModel.workday.value?.copy(lunchStartHour = "${state.hour}:${state.minute}")
+                            )
+                        },
+                    )
+
+                    Spacer(Modifier.padding(4.dp))
+
+                    OutlinedTextField(
+                        label = { Text("Lunch Duration (minutes)") },
+                        value = if (viewModel.workday.value?.lunchDurationMinutes == 0) "" else viewModel.workday.value?.lunchDurationMinutes.toString(),
+                        onValueChange = {
+                            val minutes = it.toIntOrNull() ?: 0
+                            viewModel.setWorkday(viewModel.workday.value?.copy(lunchDurationMinutes = minutes))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+                    Row(
+                        Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text("Total Duration")
-                        Text(viewModel.workday.value!!.shiftDuration)
+                        Text(viewModel.workday.value?.shiftDuration.toString())
                     }
                 }
             }
@@ -97,7 +139,10 @@ fun AddEntryScreen(
             Spacer(Modifier.padding(8.dp))
 
             ElevatedButton(
-                onClick = { viewModel.saveWorkday { navController.popBackStack() } },
+                onClick = {
+                    if (isEditing) viewModel.editWorkday { navController.popBackStack() }
+                    else viewModel.saveWorkday { navController.popBackStack() }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonColors(
                     containerColor = Color(0xFF4CAF50),
@@ -139,5 +184,5 @@ fun AddEntryScreen(
 @Preview
 @Composable
 fun AddEntryScreenPreview() {
-    AddEntryScreen(viewModel(), rememberNavController(), LocalDate.now().toString())
+    AddEntryScreen(viewModel(), rememberNavController())
 }

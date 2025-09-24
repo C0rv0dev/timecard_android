@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +46,9 @@ fun WorkdayInformationCard(
             ) {
                 Text(
                     "If you believe this is an error, please contact support.",
-                    Modifier.padding(top = 8.dp).fillMaxWidth(),
+                    Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = TextStyle(color = Color(0x80B00020))
                 )
@@ -88,18 +91,8 @@ fun WorkdayInformationCard(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Workday Type")
+                    Text("Shift Type")
                     Text(WorkdayTypeEnum.from(workday.shiftType))
-                }
-
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Shift Duration")
-                    Text(workday.shiftDuration)
                 }
 
                 Row(
@@ -122,11 +115,45 @@ fun WorkdayInformationCard(
                     Text(workday.shiftEndHour)
                 }
 
+                Row(
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Shift Duration")
+                    Text(workday.shiftDuration)
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Row(
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Lunch Start")
+                    Text(workday.lunchStartHour)
+                }
+
+                Row(
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Lunch Duration")
+                    Text("${workday.lunchDurationMinutes} minutes")
+                }
+
                 Spacer(Modifier.padding(8.dp))
 
                 // yellow 0xFFFFD60A
                 ElevatedButton(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate("${Screens.EditEntry.route}/${workday.date}")
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonColors(
                         containerColor = Color(0xFFFFD60A),
