@@ -33,6 +33,7 @@ fun HomeScreen(
 
 //        Graph
             MonthOverviewGraph(
+                totalRegisteredDays = viewModel.totalRegisteredDays.value,
                 totalWorkedDays = viewModel.totalWorkedDays.value,
                 totalWorkedHours = viewModel.totalWorkedHours.value,
                 totalOvertimeHours = viewModel.totalOvertimeHours.value

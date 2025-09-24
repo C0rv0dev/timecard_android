@@ -26,7 +26,9 @@ import androidx.navigation.compose.rememberNavController
 import com.lucascouto.timecardapp.R
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
+import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 import com.lucascouto.timecardapp.struct.navigation.Screens
+import com.lucascouto.timecardapp.ui.components.ActionButton
 import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
 import java.time.LocalDate
 
@@ -95,56 +97,70 @@ fun WorkdayInformationCard(
                     Text(WorkdayTypeEnum.from(workday.shiftType))
                 }
 
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Shift Start Hour")
-                    Text(workday.shiftStartHour)
-                }
+                if (workday.shiftType == WorkdayTypeEnum.REGULAR.value) {
 
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Shift End Hour")
-                    Text(workday.shiftEndHour)
-                }
 
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Shift Duration")
-                    Text(workday.shiftDuration)
-                }
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Shift Start Hour")
+                        Text(workday.shiftStartHour)
+                    }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Shift End Hour")
+                        Text(workday.shiftEndHour)
+                    }
 
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Lunch Start")
-                    Text(workday.lunchStartHour)
-                }
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Shift Duration")
+                        Text(workday.shiftDuration)
+                    }
 
-                Row(
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Lunch Duration")
-                    Text("${workday.lunchDurationMinutes} minutes")
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Shift Effective Duration")
+                        Text(TimeUtils.convertMinutesToTime(TimeUtils.convertTimeToMinutes(workday.shiftDuration)?.minus(workday.lunchDurationMinutes) ?: 0))
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Lunch Start")
+                        Text(workday.lunchStartHour)
+                    }
+
+                    Row(
+                        Modifier
+                            .padding(4.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Lunch Duration")
+                        Text("${workday.lunchDurationMinutes} minutes")
+                    }
                 }
 
                 Spacer(Modifier.padding(8.dp))
@@ -167,22 +183,17 @@ fun WorkdayInformationCard(
 
                 Spacer(Modifier.padding(4.dp))
 
-                // red 0xFFB00020
-                ElevatedButton(
-                    onClick = { viewModel.deleteWorkday { navController.popBackStack() } },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonColors(
-                        containerColor = Color(0xFFB00020),
-                        contentColor = Color.Black,
-                        disabledContainerColor = Color(0x80B00020),
-                        disabledContentColor = Color(0x80000000)
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_trash),
-                        contentDescription = "Delete"
-                    )
-                }
+                ActionButton(
+                    content = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_trash),
+                            contentDescription = "Delete"
+                        )
+                    },
+                    onConfirm = {
+                        viewModel.deleteWorkday { navController.popBackStack() }
+                    }
+                )
             }
         }
     }

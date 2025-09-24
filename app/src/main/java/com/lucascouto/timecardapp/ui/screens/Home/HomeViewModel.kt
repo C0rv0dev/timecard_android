@@ -2,6 +2,7 @@ package com.lucascouto.timecardapp.ui.screens.Home
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,6 +38,10 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
     private var _totalWorkedDays: MutableState<Int?> = mutableStateOf(null)
     val totalWorkedDays: State<Int?> by lazy { _totalWorkedDays }
 
+    // Total registered days
+    private var _totalRegisteredDays: MutableState<Int> = mutableIntStateOf(0)
+    val totalRegisteredDays: State<Int> by lazy { _totalRegisteredDays }
+
     // Total overtime hours
     private var _totalOvertimeHours: MutableState<Int?> = mutableStateOf(null)
     val totalOvertimeHours: State<Int?> by lazy { _totalOvertimeHours }
@@ -65,6 +70,8 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
 
                 _calendarState.setEvents(events)
 
+                // Summary
+                _totalRegisteredDays.value = workdays.size
                 _estimatedSalary.value = workdaysDataLogic.calculateEstimatedSalary()
                 _totalWorkedHours.value = workdaysDataLogic.calculateTotalWorkedHours()
                 _totalWorkedDays.value = workdaysDataLogic.calculateTotalWorkedDays()

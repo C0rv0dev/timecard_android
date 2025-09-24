@@ -1,6 +1,7 @@
 package com.lucascouto.timecardapp.struct.data.logic
 
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
+import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
@@ -11,8 +12,8 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         val baseWorkdayHours = 8 // TODO: Fetch from settings
 
         // Rates
-        val overtimeRateMultiplier = 25 / 100 // TODO: Fetch from settings
-        val lateNightRateMultiplier = 25 / 100 // TODO: Fetch from settings
+        val overtimeRateMultiplier = 25F / 100F // TODO: Fetch from settings
+        val lateNightRateMultiplier = 25F / 100F // TODO: Fetch from settings
         val lateNightStart = "22:00" // TODO: Fetch from settings
         val lateNightEnd = "05:00" // TODO: Fetch from settings
     }
@@ -20,7 +21,11 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     // Methods
     fun calculateEstimatedSalary(): Int {
         var totalSalary = 0.0
-        for (workday in workdays) totalSalary += calculateDaySalary(workday)
+        for (workday in workdays) {
+            if (workday.shiftType != WorkdayTypeEnum.UNPAID_LEAVE.value)
+                totalSalary += calculateDaySalary(workday)
+        }
+
         return totalSalary.toInt()
     }
 
@@ -28,6 +33,8 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var totalWorkedMinutes = 0
 
         for (workday in workdays) {
+            if (workday.shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) continue
+
             val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
             val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
 
@@ -47,6 +54,8 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var totalOvertimeMinutes = 0
 
         for (workday in workdays) {
+            if (workday.shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) continue
+
             val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
             val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
 
@@ -65,7 +74,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     }
 
     fun calculateTotalWorkedDays(): Int {
-        return workdays.size
+        return workdays.count { it.shiftType == WorkdayTypeEnum.REGULAR.value }
     }
 
     // Utils
@@ -82,7 +91,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
 
         // Define break
         val lunchStart = TimeUtils.convertTimeToMinutes(workday.lunchStartHour) ?: return 0
-        val lunchStartAbs = if (lunchStart < start) lunchStart + 24 * workday.lunchDurationMinutes else lunchStart
+        val lunchStartAbs = if (lunchStart < start) lunchStart + 24 * 60 else lunchStart
         val lunchEndAbs = lunchStartAbs + workday.lunchDurationMinutes
 
         // Calculate salary minute by minute

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonColors
@@ -35,7 +34,6 @@ import com.lucascouto.timecardapp.ui.components.SelectEnum
 import com.lucascouto.timecardapp.ui.components.TimePickerDialog
 import com.lucascouto.timecardapp.ui.layout.BasePage
 import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,14 +45,18 @@ fun AddEntryScreen(
     val scrollState = rememberScrollState()
 
     BasePage(navController) {
-        Column(Modifier.fillMaxWidth()
-            .padding(12.dp)
-            .verticalScroll(scrollState)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .verticalScroll(scrollState)
         ) {
             Card(Modifier.fillMaxWidth()) {
                 Text(
                     viewModel.selectedDate.value,
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
                     style = TextStyle(fontSize = 24.sp),
                     textAlign = TextAlign.Center
                 )
@@ -66,7 +68,8 @@ fun AddEntryScreen(
                 Column(Modifier.padding(16.dp)) {
                     SelectEnum(
                         options = WorkdayTypeEnum.list(),
-                        selected = viewModel.workday.value?.shiftType ?: WorkdayTypeEnum.REGULAR.value,
+                        selected = viewModel.workday.value?.shiftType
+                            ?: WorkdayTypeEnum.REGULAR.value,
                         onSelect = { type ->
                             viewModel.setWorkday(
                                 viewModel.workday.value?.copy(shiftType = type)
@@ -74,64 +77,70 @@ fun AddEntryScreen(
                         },
                     )
 
-                    Spacer(Modifier.padding(4.dp))
+                    if (viewModel.workday.value?.shiftType == WorkdayTypeEnum.REGULAR.value) {
+                        Spacer(Modifier.padding(4.dp))
 
-                    TimePickerDialog(
-                        label = "Shift Start",
-                        displayValue = viewModel.workday.value?.shiftStartHour,
-                        onConfirm = { state ->
-                            viewModel.setWorkday(
-                                viewModel.workday.value?.copy(shiftStartHour = "${state.hour}:${state.minute}")
-                            )
-                        },
-                    )
+                        TimePickerDialog(
+                            label = "Shift Start",
+                            displayValue = viewModel.workday.value?.shiftStartHour,
+                            onConfirm = { state ->
+                                viewModel.setWorkday(
+                                    viewModel.workday.value?.copy(shiftStartHour = "${state.hour}:${state.minute}")
+                                )
+                            },
+                        )
 
-                    Spacer(Modifier.padding(4.dp))
+                        Spacer(Modifier.padding(4.dp))
 
-                    TimePickerDialog(
-                        label = "Shift End",
-                        displayValue = viewModel.workday.value?.shiftEndHour,
-                        onConfirm = { state ->
-                            viewModel.setWorkday(
-                                viewModel.workday.value?.copy(shiftEndHour = "${state.hour}:${state.minute}")
-                            )
-                        },
-                    )
+                        TimePickerDialog(
+                            label = "Shift End",
+                            displayValue = viewModel.workday.value?.shiftEndHour,
+                            onConfirm = { state ->
+                                viewModel.setWorkday(
+                                    viewModel.workday.value?.copy(shiftEndHour = "${state.hour}:${state.minute}")
+                                )
+                            },
+                        )
 
-                    HorizontalDivider(Modifier.padding(vertical = 12.dp))
+                        HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-                    TimePickerDialog(
-                        label = "Lunch Start",
-                        displayValue = viewModel.workday.value?.lunchStartHour,
-                        onConfirm = { state ->
-                            viewModel.setWorkday(
-                                viewModel.workday.value?.copy(lunchStartHour = "${state.hour}:${state.minute}")
-                            )
-                        },
-                    )
+                        TimePickerDialog(
+                            label = "Lunch Start",
+                            displayValue = viewModel.workday.value?.lunchStartHour,
+                            onConfirm = { state ->
+                                viewModel.setWorkday(
+                                    viewModel.workday.value?.copy(lunchStartHour = "${state.hour}:${state.minute}")
+                                )
+                            },
+                        )
 
-                    Spacer(Modifier.padding(4.dp))
+                        Spacer(Modifier.padding(4.dp))
 
-                    OutlinedTextField(
-                        label = { Text("Lunch Duration (minutes)") },
-                        value = if (viewModel.workday.value?.lunchDurationMinutes == 0) "" else viewModel.workday.value?.lunchDurationMinutes.toString(),
-                        onValueChange = {
-                            val minutes = it.toIntOrNull() ?: 0
-                            viewModel.setWorkday(viewModel.workday.value?.copy(lunchDurationMinutes = minutes))
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        OutlinedTextField(
+                            label = { Text("Lunch Duration (minutes)") },
+                            value = if (viewModel.workday.value?.lunchDurationMinutes == 0) "" else viewModel.workday.value?.lunchDurationMinutes.toString(),
+                            onValueChange = {
+                                val minutes = it.toIntOrNull() ?: 0
+                                viewModel.setWorkday(
+                                    viewModel.workday.value?.copy(
+                                        lunchDurationMinutes = minutes
+                                    )
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    HorizontalDivider(Modifier.padding(vertical = 12.dp))
+                        HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
-                    Row(
-                        Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total Duration")
-                        Text(viewModel.workday.value?.shiftDuration.toString())
+                        Row(
+                            Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Total Duration")
+                            Text(viewModel.workday.value?.shiftDuration.toString())
+                        }
                     }
                 }
             }
@@ -154,7 +163,6 @@ fun AddEntryScreen(
                 Icon(
                     painter = painterResource(R.drawable.ic_save),
                     contentDescription = "Add",
-                    Modifier.size(32.dp)
 
                 )
             }
@@ -174,7 +182,6 @@ fun AddEntryScreen(
                 Icon(
                     painter = painterResource(R.drawable.ic_cancel),
                     contentDescription = "Delete",
-                    Modifier.size(32.dp)
                 )
             }
         }

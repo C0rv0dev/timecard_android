@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MonthOverviewGraph(
+    totalRegisteredDays: Int? = 22,
     totalWorkedDays: Int? = 20,
     totalWorkedHours: Int? = 120,
     totalOvertimeHours: Int? = 20
@@ -34,6 +35,28 @@ fun MonthOverviewGraph(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("Total Registered Days", style = TextStyle(fontSize = 16.sp))
+
+                Row {
+                    for (i in 0 until gapSize) {
+                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
+                    }
+                }
+
+                if (totalRegisteredDays != null) {
+                    Text(
+                        if (totalRegisteredDays > 1) "$totalRegisteredDays days" else "$totalRegisteredDays day",
+                        style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
+                    )
+                }
+            }
+
+            Spacer(Modifier.padding(4.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
