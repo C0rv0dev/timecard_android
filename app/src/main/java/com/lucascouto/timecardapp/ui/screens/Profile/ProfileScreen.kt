@@ -9,18 +9,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lucascouto.timecardapp.struct.AppManager
 import com.lucascouto.timecardapp.ui.layout.BasePage
 import com.lucascouto.timecardapp.ui.screens.Profile.features.ProfileDestinations
 import com.lucascouto.timecardapp.ui.screens.Profile.sub.ProfileContent
-import com.lucascouto.timecardapp.ui.screens.Profile.sub.SettingsContent
+import com.lucascouto.timecardapp.ui.screens.Profile.sub.Settings.SettingsContent
+import com.lucascouto.timecardapp.ui.viewmodel.factories.SettingsViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(incomingNavController: NavController) {
+fun ProfileScreen(appManager: AppManager, incomingNavController: NavController) {
     val tabs = remember { ProfileDestinations.entries }
     val startDestination = remember { ProfileDestinations.PROFILE }
     val selectedContent = rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
@@ -55,7 +59,20 @@ fun ProfileScreen(incomingNavController: NavController) {
                     ProfileContent()
                 }
                 composable(ProfileDestinations.SETTINGS.name) {
-                    SettingsContent()
+                    val owner = LocalViewModelStoreOwner.current
+
+                    owner?.let {
+                        SettingsContent(
+                            viewModel = viewModel(
+                                it,
+                                "SettingsViewModel",
+                                SettingsViewModelFactory(appManager.shared.dataStorageManager)
+                            )
+                        )
+                    }
+                }
+                composable(ProfileDestinations.SYSTEM.name) {
+                    Text("System settings")
                 }
             }
         }

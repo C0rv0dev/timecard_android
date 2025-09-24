@@ -15,9 +15,6 @@ interface WorkdayDao {
     @Query("SELECT * FROM workdays WHERE date LIKE :yearMonth || '%'")
     fun fetchByMonth(yearMonth: String): List<WorkdayEntity>
 
-    @Query("SELECT * FROM workdays WHERE id = :id")
-    fun show(id: Long): WorkdayEntity?
-
     @Query("SELECT * FROM workdays WHERE date = :date")
     fun find(date: String): WorkdayEntity?
 

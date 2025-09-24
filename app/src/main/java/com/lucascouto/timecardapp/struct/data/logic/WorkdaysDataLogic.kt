@@ -5,19 +5,6 @@ import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
-    // Vars
-    companion object {
-        // Base
-        val hourlyPay = 1000 // TODO: Fetch from settings
-        val baseWorkdayHours = 8 // TODO: Fetch from settings
-
-        // Rates
-        val overtimeRateMultiplier = 25F / 100F // TODO: Fetch from settings
-        val lateNightRateMultiplier = 25F / 100F // TODO: Fetch from settings
-        val lateNightStart = "22:00" // TODO: Fetch from settings
-        val lateNightEnd = "05:00" // TODO: Fetch from settings
-    }
-
     // Methods
     fun calculateEstimatedSalary(): Int {
         var totalSalary = 0.0
@@ -65,7 +52,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
                 if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
 
             val effectiveWorkedMinutes = workedMinutes - workday.lunchDurationMinutes
-            val overtimeMinutes = (effectiveWorkedMinutes - baseWorkdayHours * 60).coerceAtLeast(0)
+            val overtimeMinutes = (effectiveWorkedMinutes - workday.baseShiftDurationHoursAtTime * 60).coerceAtLeast(0)
 
             totalOvertimeMinutes += overtimeMinutes
         }
@@ -104,14 +91,14 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
 
             val minuteOfDay = current % (24 * 60)
 
-            val isLateNight = isLateNight(minuteOfDay)
-            val isOvertime = workedMinutesSoFar >= baseWorkdayHours * 60
+            val isLateNight = isLateNight(minuteOfDay, workday.lateNightStartTimeAtTime, workday.lateNightEndTimeAtTime)
+            val isOvertime = workedMinutesSoFar >= workday.baseShiftDurationHoursAtTime * 60
 
             var multiplier = 1.0
-            if (isOvertime) multiplier += overtimeRateMultiplier
-            if (isLateNight) multiplier += lateNightRateMultiplier
+            if (isOvertime) multiplier += workday.overtimeRateMultiAtTime.toFloat() / 100F
+            if (isLateNight) multiplier += workday.lateNightRateMultiAtTime.toFloat() / 100F
 
-            salary += hourlyPay * multiplier
+            salary += workday.defaultHourlyPayAtTime * multiplier
 
             workedMinutesSoFar++
             current++
@@ -122,7 +109,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         return salary.toInt()
     }
 
-    private fun isLateNight(minuteOfDay: Int): Boolean {
+    private fun isLateNight(minuteOfDay: Int, lateNightStart: String, lateNightEnd: String): Boolean {
         val lateStart = TimeUtils.convertTimeToMinutes(lateNightStart) ?: return false
         val lateEnd = TimeUtils.convertTimeToMinutes(lateNightEnd) ?: return false
         return if (lateStart < lateEnd) minuteOfDay in lateStart until lateEnd else { minuteOfDay >= lateStart || minuteOfDay < lateEnd }

@@ -3,10 +3,10 @@ package com.lucascouto.timecardapp.ui.viewmodel.factories
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.lucascouto.timecardapp.struct.data.storage.DataStorageManager
-import com.lucascouto.timecardapp.ui.screens.Entry.EntryViewModel
+import com.lucascouto.timecardapp.ui.screens.Profile.sub.Settings.SettingsViewModel
 
-class EntryViewModelFactory(private val date: String, private val dataStoreManager: DataStorageManager) : ViewModelProvider.Factory {
+class SettingsViewModelFactory(private val dataStorageManager: DataStorageManager): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return EntryViewModel(dataStoreManager = dataStoreManager).boot(date) as T
+        return SettingsViewModel(dataStorageManager) as T
     }
 }

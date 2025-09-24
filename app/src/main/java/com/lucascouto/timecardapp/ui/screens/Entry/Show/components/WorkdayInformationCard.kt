@@ -184,11 +184,14 @@ fun WorkdayInformationCard(
                 Spacer(Modifier.padding(4.dp))
 
                 ActionButton(
-                    content = {
+                    buttonContent = {
                         Icon(
                             painter = painterResource(R.drawable.ic_trash),
                             contentDescription = "Delete"
                         )
+                    },
+                    dialogContent = {
+                        Text("Are you sure you want to delete this workday entry?")
                     },
                     onConfirm = {
                         viewModel.deleteWorkday { navController.popBackStack() }

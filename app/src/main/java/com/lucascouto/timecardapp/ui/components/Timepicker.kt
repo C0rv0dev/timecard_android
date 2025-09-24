@@ -1,6 +1,7 @@
 package com.lucascouto.timecardapp.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
@@ -24,7 +25,8 @@ import java.util.Calendar
 fun TimePickerDialog(
     label: String,
     displayValue: String?,
-    onConfirm: (TimePickerState) -> Unit
+    onConfirm: (TimePickerState) -> Unit,
+    enabled: Boolean = true
 ) {
     var open by remember { mutableStateOf(false) }
     val currentTime = Calendar.getInstance()
@@ -38,16 +40,23 @@ fun TimePickerDialog(
     )
 
     // Open the dialog
-    Box(modifier = Modifier.fillMaxWidth().clickable { open = true }) {
+    Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = displayValue ?: "",
             onValueChange = {},
             readOnly = true,
-            enabled = false,
+            enabled = enabled,
             label = { Text(label) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            interactionSource = remember { MutableInteractionSource() },
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(enabled) { if (enabled) open = true }
         )
     }
+
 
 
 //    display the dialog
@@ -61,7 +70,7 @@ fun TimePickerDialog(
 }
 
 @Composable
-fun TimePickerDialog(
+private fun TimePickerDialog(
     open: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,

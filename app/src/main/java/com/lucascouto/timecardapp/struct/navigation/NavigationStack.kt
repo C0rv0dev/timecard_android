@@ -41,7 +41,7 @@ fun NavigationStack(appManager: AppManager) {
         // Main
         composable(Screens.Splash.route) { backStackEntry -> SplashScreen(navController) }
         composable(route = Screens.Home.route) { backStackEntry -> HomeScreen(homeViewModel, navController) }
-        composable(Screens.Profile.route) { backStackEntry -> ProfileScreen(navController) }
+        composable(Screens.Profile.route) { backStackEntry -> ProfileScreen(appManager,navController) }
 
         // Entries
         // Show
@@ -63,7 +63,7 @@ fun NavigationStack(appManager: AppManager) {
                     viewModel(
                         it,
                         "ShowEntryViewModel",
-                        EntryViewModelFactory(date)
+                        EntryViewModelFactory(date, appManager.shared.dataStorageManager)
                     ),
                     navController,
                     date
@@ -90,7 +90,7 @@ fun NavigationStack(appManager: AppManager) {
                     viewModel(
                         it,
                         "AddEntryViewModel",
-                        EntryViewModelFactory(date)
+                        EntryViewModelFactory(date, appManager.shared.dataStorageManager)
                     ),
                     navController,
                 )
@@ -116,7 +116,7 @@ fun NavigationStack(appManager: AppManager) {
                     viewModel = viewModel(
                         it,
                         "EditEntryViewModel",
-                        EntryViewModelFactory(date)
+                        EntryViewModelFactory(date, appManager.shared.dataStorageManager)
                     ),
                     navController = navController,
                     isEditing = true

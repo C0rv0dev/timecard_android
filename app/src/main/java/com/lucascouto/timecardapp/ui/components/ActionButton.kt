@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun ActionButton(
-    content: @Composable () -> Unit,
+    buttonContent: @Composable () -> Unit,
+    dialogContent: @Composable () -> Unit,
     onConfirm: () -> Unit,
     enabled: Boolean = true,
 ) {
@@ -24,13 +25,13 @@ fun ActionButton(
         enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        content()
+        buttonContent()
     }
 
     if (openDialog) {
         AlertDialog(
             title = { Text(text = "Confirm Action") },
-            text = { Text("Are you sure you want to proceed?") },
+            text = { dialogContent() },
             onDismissRequest = { openDialog = false },
             confirmButton = {
                 ElevatedButton(
