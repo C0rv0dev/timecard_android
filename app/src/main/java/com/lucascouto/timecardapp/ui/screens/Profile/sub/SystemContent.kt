@@ -36,6 +36,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun SystemContent(appManager: AppManager) {
     val context: Context = LocalContext.current
+
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri: Uri? ->
+        if (uri != null) {
+            importData(context, uri)
+        }
+    }
+
     val folderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
@@ -80,12 +89,12 @@ fun SystemContent(appManager: AppManager) {
                 Text("Export Data")
             }
 
-//            Button(
-//                onClick = { /* TODO **/ },
-//                modifier = Modifier.fillMaxWidth(),
-//            ) {
-//                Text("Import Data")
-//            }
+            Button(
+                onClick = { filePicker.launch(arrayOf("application/json")) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Import Data")
+            }
         }
 
         ActionButton(
@@ -122,6 +131,12 @@ fun SystemContent(appManager: AppManager) {
 fun exportData(context: Context, folderUri: Uri) {
     CoroutineScope(Dispatchers.IO).launch {
         FileStoreManager.saveToFile(folderUri, context)
+    }
+}
+
+fun importData(context: Context, folderUri: Uri) {
+    CoroutineScope(Dispatchers.IO).launch {
+        FileStoreManager.loadFromFile(folderUri, context)
     }
 }
 

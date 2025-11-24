@@ -4,12 +4,13 @@ import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
+import org.json.JSONArray
 import org.json.JSONObject
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     // Companion object
     companion object {
-        suspend fun exportJson(): JSONObject? {
+        suspend fun exportJson(): ArrayList<JSONObject?>? {
             // export all workdays data to a file
             val workdays = DatabaseProvider.workdayRepository.fetch()
 
@@ -18,8 +19,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
                 return null
             }
 
-            val jsonList = ArrayList<JSONObject>()
-            val finalObj = JSONObject()
+            val jsonList = ArrayList<JSONObject?>()
 
             for (workday in workdays) {
                 val obj = JSONObject()
@@ -40,13 +40,44 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
                 jsonList.add(obj)
             }
 
-            finalObj.put("workdays", jsonList)
-
-            return finalObj
+            return jsonList
         }
 
         suspend fun deleteAllData() {
             DatabaseProvider.workdayRepository.truncate()
+        }
+
+        suspend fun importJson(content: String) {
+            val jsonArray = JSONArray(content)
+            val existingDates = DatabaseProvider.workdayRepository.fetch().map { it.date }.toSet()
+
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+
+                val workday = WorkdayEntity(
+                    date = obj.getString("date"),
+                    shiftType = obj.getInt("shiftType"),
+                    shiftStartHour = obj.getString("shiftStartHour"),
+                    shiftEndHour = obj.getString("shiftEndHour"),
+                    lunchStartHour = obj.getString("lunchStartHour"),
+                    lunchDurationMinutes = obj.getInt("lunchDurationMinutes"),
+                    defaultHourlyPayAtTime = obj.getInt("defaultHourlyPayAtTime"),
+                    overtimeRateMultiAtTime = obj.getInt("overtimeRateMultiAtTime"),
+                    lateNightRateMultiAtTime = obj.getInt("lateNightRateMultiAtTime"),
+                    baseShiftDurationHoursAtTime = obj.getInt("baseShiftDurationHoursAtTime"),
+                    lateNightStartTimeAtTime = obj.getString("lateNightStartTimeAtTime"),
+                    lateNightEndTimeAtTime = obj.getString("lateNightEndTimeAtTime"),
+                    shiftDuration = TimeUtils.calculateDuration(
+                        start = obj.getString("shiftStartHour"),
+                        end = obj.getString("shiftEndHour")
+                    )
+                )
+
+                // Avoid duplicates based on date
+                if (workday.date !in existingDates) {
+                    DatabaseProvider.workdayRepository.create(workday)
+                }
+            }
         }
     }
 
