@@ -137,7 +137,12 @@ fun WorkdayInformationCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Shift Effective Duration")
-                        Text(TimeUtils.convertMinutesToTime(TimeUtils.convertTimeToMinutes(workday.shiftDuration)?.minus(workday.lunchDurationMinutes) ?: 0))
+                        Text(
+                            TimeUtils.convertMinutesToTime(
+                                TimeUtils.convertTimeToMinutes(workday.shiftDuration)
+                                    ?.minus(workday.lunchDurationMinutes) ?: 0
+                            )
+                        )
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
@@ -195,7 +200,13 @@ fun WorkdayInformationCard(
                     },
                     onConfirm = {
                         viewModel.deleteWorkday { navController.popBackStack() }
-                    }
+                    },
+                    buttonStyle = ButtonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.Gray,
+                        disabledContentColor = Color.LightGray
+                    )
                 )
             }
         }
