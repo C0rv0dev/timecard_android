@@ -10,4 +10,5 @@ class WorkdayRepository(private val dao: WorkdayDao) {
     suspend fun create(workday: WorkdayEntity) = dao.create(workday)
     suspend fun update(workday: WorkdayEntity) = dao.update(workday)
     suspend fun delete(workday: WorkdayEntity) = dao.delete(workday)
+    suspend fun truncate() = dao.truncate()
 }

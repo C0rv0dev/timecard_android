@@ -2,6 +2,7 @@ package com.lucascouto.timecardapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ fun ActionButton(
     dialogContent: @Composable () -> Unit,
     onConfirm: () -> Unit,
     enabled: Boolean = true,
+    buttonStyle: ButtonColors? = null,
 ) {
     var openDialog by remember { mutableStateOf(false) }
 
@@ -24,6 +26,12 @@ fun ActionButton(
         onClick = { openDialog = true },
         enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
+        colors = buttonStyle ?: ButtonColors(
+            containerColor = androidx.compose.material3.ButtonDefaults.elevatedButtonColors().containerColor,
+            contentColor = androidx.compose.material3.ButtonDefaults.elevatedButtonColors().contentColor,
+            disabledContainerColor = androidx.compose.material3.ButtonDefaults.elevatedButtonColors().disabledContainerColor,
+            disabledContentColor = androidx.compose.material3.ButtonDefaults.elevatedButtonColors().disabledContentColor,
+        )
     ) {
         buttonContent()
     }

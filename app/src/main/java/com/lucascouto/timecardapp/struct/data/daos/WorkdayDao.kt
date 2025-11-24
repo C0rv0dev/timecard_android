@@ -26,4 +26,7 @@ interface WorkdayDao {
 
     @Delete
     abstract suspend fun delete(workday: WorkdayEntity)
+
+    @Query("DELETE FROM workdays")
+    abstract fun truncate()
 }

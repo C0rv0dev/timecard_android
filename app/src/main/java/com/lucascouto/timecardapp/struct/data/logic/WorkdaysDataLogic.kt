@@ -3,8 +3,6 @@ package com.lucascouto.timecardapp.struct.data.logic
 import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
-import com.lucascouto.timecardapp.struct.data.singletons.ToastController
-import com.lucascouto.timecardapp.struct.data.singletons.ToastType
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 import org.json.JSONObject
 
@@ -17,7 +15,6 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
 
             // if no workdays are found, show a message and return
             if (workdays.isEmpty()) {
-                ToastController.show("No workdays found to export.", ToastType.WARNING)
                 return null
             }
 
@@ -46,6 +43,10 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
             finalObj.put("workdays", jsonList)
 
             return finalObj
+        }
+
+        suspend fun deleteAllData() {
+            DatabaseProvider.workdayRepository.truncate()
         }
     }
 
