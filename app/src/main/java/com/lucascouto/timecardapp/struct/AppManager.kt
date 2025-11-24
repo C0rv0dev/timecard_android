@@ -23,6 +23,9 @@ object PreferencesKeys {
     val LUNCH_DURATION_MINUTES = intPreferencesKey("lunch_duration_minutes")
     val RECEIVE_NOTIFICATIONS = booleanPreferencesKey("receive_notifications")
     val NOTIFICATION_TIME = stringPreferencesKey("notification_time")
+
+    // Export settings
+    val EXPORT_PATH = stringPreferencesKey("export_path")
 }
 
 class AppManager(private val context: Context) {

@@ -1,10 +1,54 @@
 package com.lucascouto.timecardapp.struct.data.logic
 
+import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
+import com.lucascouto.timecardapp.struct.data.singletons.ToastController
+import com.lucascouto.timecardapp.struct.data.singletons.ToastType
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
+import org.json.JSONObject
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
+    // Companion object
+    companion object {
+        suspend fun exportJson(): JSONObject? {
+            // export all workdays data to a file
+            val workdays = DatabaseProvider.workdayRepository.fetch()
+
+            // if no workdays are found, show a message and return
+            if (workdays.isEmpty()) {
+                ToastController.show("No workdays found to export.", ToastType.WARNING)
+                return null
+            }
+
+            val jsonList = ArrayList<JSONObject>()
+            val finalObj = JSONObject()
+
+            for (workday in workdays) {
+                val obj = JSONObject()
+
+                obj.put("date", workday.date)
+                obj.put("shiftType", workday.shiftType)
+                obj.put("shiftStartHour", workday.shiftStartHour)
+                obj.put("shiftEndHour", workday.shiftEndHour)
+                obj.put("lunchStartHour", workday.lunchStartHour)
+                obj.put("lunchDurationMinutes", workday.lunchDurationMinutes)
+                obj.put("defaultHourlyPayAtTime", workday.defaultHourlyPayAtTime)
+                obj.put("overtimeRateMultiAtTime", workday.overtimeRateMultiAtTime)
+                obj.put("lateNightRateMultiAtTime", workday.lateNightRateMultiAtTime)
+                obj.put("baseShiftDurationHoursAtTime", workday.baseShiftDurationHoursAtTime)
+                obj.put("lateNightStartTimeAtTime", workday.lateNightStartTimeAtTime)
+                obj.put("lateNightEndTimeAtTime", workday.lateNightEndTimeAtTime)
+
+                jsonList.add(obj)
+            }
+
+            finalObj.put("workdays", jsonList)
+
+            return finalObj
+        }
+    }
+
     // Methods
     fun calculateEstimatedSalary(): Int {
         var totalSalary = 0.0
@@ -52,7 +96,8 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
                 if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
 
             val effectiveWorkedMinutes = workedMinutes - workday.lunchDurationMinutes
-            val overtimeMinutes = (effectiveWorkedMinutes - workday.baseShiftDurationHoursAtTime * 60).coerceAtLeast(0)
+            val overtimeMinutes =
+                (effectiveWorkedMinutes - workday.baseShiftDurationHoursAtTime * 60).coerceAtLeast(0)
 
             totalOvertimeMinutes += overtimeMinutes
         }
@@ -91,7 +136,11 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
 
             val minuteOfDay = current % (24 * 60)
 
-            val isLateNight = isLateNight(minuteOfDay, workday.lateNightStartTimeAtTime, workday.lateNightEndTimeAtTime)
+            val isLateNight = isLateNight(
+                minuteOfDay,
+                workday.lateNightStartTimeAtTime,
+                workday.lateNightEndTimeAtTime
+            )
             val isOvertime = workedMinutesSoFar >= workday.baseShiftDurationHoursAtTime * 60
 
             var multiplier = 1.0
@@ -109,9 +158,15 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         return salary.toInt()
     }
 
-    private fun isLateNight(minuteOfDay: Int, lateNightStart: String, lateNightEnd: String): Boolean {
+    private fun isLateNight(
+        minuteOfDay: Int,
+        lateNightStart: String,
+        lateNightEnd: String
+    ): Boolean {
         val lateStart = TimeUtils.convertTimeToMinutes(lateNightStart) ?: return false
         val lateEnd = TimeUtils.convertTimeToMinutes(lateNightEnd) ?: return false
-        return if (lateStart < lateEnd) minuteOfDay in lateStart until lateEnd else { minuteOfDay >= lateStart || minuteOfDay < lateEnd }
+        return if (lateStart < lateEnd) minuteOfDay in lateStart until lateEnd else {
+            minuteOfDay >= lateStart || minuteOfDay < lateEnd
+        }
     }
 }

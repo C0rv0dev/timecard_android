@@ -20,6 +20,7 @@ import com.lucascouto.timecardapp.ui.layout.BasePage
 import com.lucascouto.timecardapp.ui.screens.Profile.features.ProfileDestinations
 import com.lucascouto.timecardapp.ui.screens.Profile.sub.ProfileContent
 import com.lucascouto.timecardapp.ui.screens.Profile.sub.Settings.SettingsContent
+import com.lucascouto.timecardapp.ui.screens.Profile.sub.SystemContent
 import com.lucascouto.timecardapp.ui.viewmodel.factories.SettingsViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,9 +70,7 @@ fun ProfileScreen(appManager: AppManager, incomingNavController: NavController) 
                         )
                     }
                 }
-                composable(ProfileDestinations.SYSTEM.name) {
-                    Text("System settings")
-                }
+                composable(ProfileDestinations.SYSTEM.name) { SystemContent(appManager) }
             }
         }
     }
