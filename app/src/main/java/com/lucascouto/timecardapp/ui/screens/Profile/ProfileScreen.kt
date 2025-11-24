@@ -55,9 +55,7 @@ fun ProfileScreen(appManager: AppManager, incomingNavController: NavController) 
                 navController = navController,
                 startDestination = startDestination.name
             ) {
-                composable(ProfileDestinations.PROFILE.name) {
-                    ProfileContent()
-                }
+                composable(ProfileDestinations.PROFILE.name) { ProfileContent() }
                 composable(ProfileDestinations.SETTINGS.name) {
                     val owner = LocalViewModelStoreOwner.current
 
