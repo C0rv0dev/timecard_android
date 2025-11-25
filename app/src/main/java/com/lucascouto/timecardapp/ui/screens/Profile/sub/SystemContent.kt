@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.lucascouto.timecardapp.R
 import com.lucascouto.timecardapp.struct.AppManager
 import com.lucascouto.timecardapp.struct.data.logic.WorkdaysDataLogic
+import com.lucascouto.timecardapp.struct.data.singletons.LoadingController
 import com.lucascouto.timecardapp.struct.data.singletons.ToastController
 import com.lucascouto.timecardapp.struct.data.singletons.ToastType
 import com.lucascouto.timecardapp.struct.data.storage.FileStoreManager
@@ -129,20 +130,32 @@ fun SystemContent(appManager: AppManager) {
 }
 
 fun exportData(context: Context, folderUri: Uri) {
+    LoadingController.setLoading(true)
+
     CoroutineScope(Dispatchers.IO).launch {
         FileStoreManager.saveToFile(folderUri, context)
+    }.invokeOnCompletion {
+        LoadingController.setLoading(false)
     }
 }
 
 fun importData(context: Context, folderUri: Uri) {
+    LoadingController.setLoading(true)
+
     CoroutineScope(Dispatchers.IO).launch {
         FileStoreManager.loadFromFile(folderUri, context)
+    }.invokeOnCompletion {
+        LoadingController.setLoading(false)
     }
 }
 
 fun deleteAllData() {
+    LoadingController.setLoading(true)
+
     CoroutineScope(Dispatchers.IO).launch {
         WorkdaysDataLogic.deleteAllData()
         ToastController.show("All data deleted successfully", ToastType.SUCCESS)
+    }.invokeOnCompletion {
+        LoadingController.setLoading(false)
     }
 }

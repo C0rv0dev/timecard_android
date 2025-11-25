@@ -24,10 +24,4 @@ object ToastController {
     suspend fun show(message: String, type: ToastType = ToastType.INFO) {
         _events.emit(ToastEvent(message, type))
     }
-
-    fun showSync(message: String, type: ToastType = ToastType.INFO) {
-        CoroutineScope(Dispatchers.Main).launch {
-            _events.emit(ToastEvent(message, type))
-        }
-    }
 }

@@ -21,6 +21,7 @@ fun SelectEnum(
     options: List<Pair<String, Int>>,
     onSelect: (Int) -> Unit,
     selected: Int? = null,
+    enabled: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -33,9 +34,14 @@ fun SelectEnum(
             value = WorkdayTypeEnum.from(selected),
             onValueChange = {},
             readOnly = true,
-            enabled = false,
+            enabled = enabled,
             label = { Text("Select type") },
             modifier = Modifier.fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(enabled) { if (enabled) expanded = true }
         )
 
         DropdownMenu(

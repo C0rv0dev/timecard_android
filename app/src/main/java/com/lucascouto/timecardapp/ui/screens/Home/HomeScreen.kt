@@ -2,7 +2,12 @@ package com.lucascouto.timecardapp.ui.screens.Home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -25,13 +30,15 @@ fun HomeScreen(
     LaunchedEffect(Unit) { viewModel.refreshData() }
 
     BasePage(navController) {
-        Column(modifier = Modifier.padding(8.dp)) {
-//        Estimated Salary
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             EstimatedSalaryCard(viewModel.estimatedSalary.value)
 
             Spacer(modifier = Modifier.padding(8.dp))
 
-//        Graph
             MonthOverviewGraph(
                 totalRegisteredDays = viewModel.totalRegisteredDays.value,
                 totalWorkedDays = viewModel.totalWorkedDays.value,
@@ -41,13 +48,18 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.padding(8.dp))
 
-//        Calendar
-            CustomCalendar(
-                viewModel.calendarState,
-                { date ->
-                    navController.navigate("${Screens.ShowEntry.route}/${date}")
-                }
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+            ) {
+                CustomCalendar(
+                    state = viewModel.calendarState,
+                    onCellClick = { date ->
+                        navController.navigate("${Screens.ShowEntry.route}/${date}")
+                    }
+                )
+            }
         }
     }
 }

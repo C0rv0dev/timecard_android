@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.platform.LocalContext
 import com.lucascouto.timecardapp.struct.navigation.NavigationStack
 import com.lucascouto.timecardapp.struct.AppManager
+import com.lucascouto.timecardapp.ui.hosts.LoaderHost
 import com.lucascouto.timecardapp.ui.hosts.ToastHost
 import com.lucascouto.timecardapp.ui.theme.TimecardAppTheme
 
@@ -23,7 +24,9 @@ class MainActivity : ComponentActivity() {
 
             TimecardAppTheme {
                 ToastHost {
-                    NavigationStack(appManager)
+                    LoaderHost {
+                        NavigationStack(appManager)
+                    }
                 }
             }
         }
