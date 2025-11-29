@@ -1,5 +1,6 @@
 package com.lucascouto.timecardapp.struct.data.logic
 
+import android.util.Log
 import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
 import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
@@ -8,106 +9,58 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
-    // Companion object
-    companion object {
-        suspend fun exportJson(): ArrayList<JSONObject?>? {
-            // export all workdays data to a file
-            val workdays = DatabaseProvider.workdayRepository.fetch()
-
-            // if no workdays are found, show a message and return
-            if (workdays.isEmpty()) {
-                return null
-            }
-
-            val jsonList = ArrayList<JSONObject?>()
-
-            for (workday in workdays) {
-                val obj = JSONObject()
-
-                obj.put("date", workday.date)
-                obj.put("shiftType", workday.shiftType)
-                obj.put("shiftStartHour", workday.shiftStartHour)
-                obj.put("shiftEndHour", workday.shiftEndHour)
-                obj.put("lunchStartHour", workday.lunchStartHour)
-                obj.put("lunchDurationMinutes", workday.lunchDurationMinutes)
-                obj.put("defaultHourlyPayAtTime", workday.defaultHourlyPayAtTime)
-                obj.put("overtimeRateMultiAtTime", workday.overtimeRateMultiAtTime)
-                obj.put("lateNightRateMultiAtTime", workday.lateNightRateMultiAtTime)
-                obj.put("baseShiftDurationHoursAtTime", workday.baseShiftDurationHoursAtTime)
-                obj.put("lateNightStartTimeAtTime", workday.lateNightStartTimeAtTime)
-                obj.put("lateNightEndTimeAtTime", workday.lateNightEndTimeAtTime)
-
-                jsonList.add(obj)
-            }
-
-            return jsonList
-        }
-
-        suspend fun deleteAllData() {
-            DatabaseProvider.workdayRepository.truncate()
-        }
-
-        suspend fun importJson(content: String) {
-            val jsonArray = JSONArray(content)
-            val existingDates = DatabaseProvider.workdayRepository.fetch().map { it.date }.toSet()
-
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-
-                val workday = WorkdayEntity(
-                    date = obj.getString("date"),
-                    shiftType = obj.getInt("shiftType"),
-                    shiftStartHour = obj.getString("shiftStartHour"),
-                    shiftEndHour = obj.getString("shiftEndHour"),
-                    lunchStartHour = obj.getString("lunchStartHour"),
-                    lunchDurationMinutes = obj.getInt("lunchDurationMinutes"),
-                    defaultHourlyPayAtTime = obj.getInt("defaultHourlyPayAtTime"),
-                    overtimeRateMultiAtTime = obj.getInt("overtimeRateMultiAtTime"),
-                    lateNightRateMultiAtTime = obj.getInt("lateNightRateMultiAtTime"),
-                    baseShiftDurationHoursAtTime = obj.getInt("baseShiftDurationHoursAtTime"),
-                    lateNightStartTimeAtTime = obj.getString("lateNightStartTimeAtTime"),
-                    lateNightEndTimeAtTime = obj.getString("lateNightEndTimeAtTime"),
-                    shiftDuration = TimeUtils.calculateDuration(
-                        start = obj.getString("shiftStartHour"),
-                        end = obj.getString("shiftEndHour")
-                    )
-                )
-
-                // Avoid duplicates based on date
-                if (workday.date !in existingDates) {
-                    DatabaseProvider.workdayRepository.create(workday)
-                }
-            }
-        }
-    }
-
     // Methods
     fun calculateEstimatedSalary(): Int {
         var totalSalary = 0.0
         for (workday in workdays) {
-            if (workday.shiftType != WorkdayTypeEnum.UNPAID_LEAVE.value)
-                totalSalary += calculateDaySalary(workday)
+            if (workday.shiftType != WorkdayTypeEnum.UNPAID_LEAVE.value) totalSalary += calculateDaySalary(
+                workday
+            )
         }
 
         return totalSalary.toInt()
+    }
+
+    fun calculateEstimatedRegularSalary(): Int {
+        var totalRegularSalary = 0.0
+        for (workday in workdays) {
+            val effectiveWorkedMinutes = getWorkedMinutesMinusLunch(workday)
+            val regularMinutes =
+                effectiveWorkedMinutes.coerceAtMost(workday.baseShiftDurationHoursAtTime * 60)
+
+            totalRegularSalary += (regularMinutes.toDouble() / 60.0) * workday.defaultHourlyPayAtTime
+        }
+
+        return totalRegularSalary.toInt()
+    }
+
+    fun calculateEstimatedOvertimeSalary(): Int {
+        var totalOvertimeSalary = 0.0
+        for (workday in workdays) {
+            val effectiveWorkedMinutes = getWorkedMinutesMinusLunch(workday)
+            val overtimeMinutes =
+                (effectiveWorkedMinutes - workday.baseShiftDurationHoursAtTime * 60).coerceAtLeast(0)
+
+            totalOvertimeSalary += (overtimeMinutes.toDouble() / 60.0) * workday.defaultHourlyPayAtTime * (1 + workday.overtimeRateMultiAtTime.toFloat() / 100F)
+        }
+
+        return totalOvertimeSalary.toInt()
+    }
+
+    fun calculateEstimatedLateNightSalary(): Int {
+        // basically, all that remains from total salary after regular and overtime
+        val totalSalary = calculateEstimatedSalary()
+        val regularSalary = calculateEstimatedRegularSalary()
+        val overtimeSalary = calculateEstimatedOvertimeSalary()
+
+        return totalSalary - regularSalary - overtimeSalary
     }
 
     fun calculateTotalWorkedHours(): Int {
         var totalWorkedMinutes = 0
 
         for (workday in workdays) {
-            if (workday.shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) continue
-
-            val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
-            val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
-
-            val startMinutes = startParts.first * 60 + startParts.second
-            val endMinutes = endParts.first * 60 + endParts.second
-
-            val workedMinutes =
-                if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
-
-            totalWorkedMinutes += workedMinutes - workday.lunchDurationMinutes
+            totalWorkedMinutes += getWorkedMinutesMinusLunch(workday)
         }
 
         return totalWorkedMinutes / 60
@@ -117,17 +70,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         var totalOvertimeMinutes = 0
 
         for (workday in workdays) {
-            if (workday.shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) continue
-
-            val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: continue
-            val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: continue
-
-            val startMinutes = startParts.first * 60 + startParts.second
-            val endMinutes = endParts.first * 60 + endParts.second
-            val workedMinutes =
-                if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
-
-            val effectiveWorkedMinutes = workedMinutes - workday.lunchDurationMinutes
+            val effectiveWorkedMinutes = getWorkedMinutesMinusLunch(workday)
             val overtimeMinutes =
                 (effectiveWorkedMinutes - workday.baseShiftDurationHoursAtTime * 60).coerceAtLeast(0)
 
@@ -135,6 +78,20 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         }
 
         return totalOvertimeMinutes / 60
+    }
+
+    fun calculateTotalRegularHours(): Int {
+        var totalRegularMinutes = 0
+
+        for (workday in workdays) {
+            val effectiveWorkedMinutes = getWorkedMinutesMinusLunch(workday)
+            val regularMinutes =
+                effectiveWorkedMinutes.coerceAtMost(workday.baseShiftDurationHoursAtTime * 60)
+
+            totalRegularMinutes += regularMinutes
+        }
+
+        return totalRegularMinutes / 60
     }
 
     fun calculateTotalWorkedDays(): Int {
@@ -145,6 +102,17 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
     private fun calculateDaySalary(workday: WorkdayEntity): Int {
         var salary = 0.0
         var workedMinutesSoFar = 0
+
+        if (workday.shiftType == WorkdayTypeEnum.PAID_LEAVE.value) {
+            val totalShiftMinutes = TimeUtils.convertTimeToMinutes(
+                TimeUtils.calculateDuration(
+                    workday.shiftStartHour, workday.shiftEndHour, workday.lunchDurationMinutes
+                )
+            )
+
+            val totalShiftHours = totalShiftMinutes?.div(60.0) ?: 0.0
+            return (totalShiftHours * workday.defaultHourlyPayAtTime).toInt()
+        }
 
         // Convert times to minutes
         val end = TimeUtils.convertTimeToMinutes(workday.shiftEndHour) ?: return 0
@@ -169,9 +137,7 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
             val minuteOfDay = current % (24 * 60)
 
             val isLateNight = isLateNight(
-                minuteOfDay,
-                workday.lateNightStartTimeAtTime,
-                workday.lateNightEndTimeAtTime
+                minuteOfDay, workday.lateNightStartTimeAtTime, workday.lateNightEndTimeAtTime
             )
             val isOvertime = workedMinutesSoFar >= workday.baseShiftDurationHoursAtTime * 60
 
@@ -186,14 +152,26 @@ class WorkdaysDataLogic(private val workdays: List<WorkdayEntity>) {
         }
 
         // Convert to hourly
-        salary = salary / 60
+        salary /= 60
         return salary.toInt()
     }
 
+    private fun getWorkedMinutesMinusLunch(workday: WorkdayEntity): Int {
+        if (workday.shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) return 0
+
+        val startParts = TimeUtils.splitTime(workday.shiftStartHour) ?: return 0
+        val endParts = TimeUtils.splitTime(workday.shiftEndHour) ?: return 0
+
+        val startMinutes = startParts.first * 60 + startParts.second
+        val endMinutes = endParts.first * 60 + endParts.second
+        val workedMinutes =
+            if (endMinutes >= startMinutes) endMinutes - startMinutes else (24 * 60 - startMinutes) + endMinutes
+
+        return workedMinutes - workday.lunchDurationMinutes
+    }
+
     private fun isLateNight(
-        minuteOfDay: Int,
-        lateNightStart: String,
-        lateNightEnd: String
+        minuteOfDay: Int, lateNightStart: String, lateNightEnd: String
     ): Boolean {
         val lateStart = TimeUtils.convertTimeToMinutes(lateNightStart) ?: return false
         val lateEnd = TimeUtils.convertTimeToMinutes(lateNightEnd) ?: return false

@@ -1,0 +1,108 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "cfb54adeafde3a2c200b8eb3d1e8b46c",
+    "entities": [
+      {
+        "tableName": "workdays",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `date` TEXT NOT NULL, `shift_start_hour` TEXT NOT NULL, `shift_end_hour` TEXT NOT NULL, `shift_duration` TEXT NOT NULL, `shift_type` INTEGER NOT NULL, `default_hourly_pay_at_time` INTEGER NOT NULL, `overtime_rate_multi_at_time` INTEGER NOT NULL, `late_night_rate_multi_at_time` INTEGER NOT NULL, `base_shift_duration_hours_at_time` INTEGER NOT NULL, `late_nihgt_start_time_at_time` TEXT NOT NULL, `late_night_end_time_at_time` TEXT NOT NULL, `lunch_start_hour` TEXT NOT NULL, `lunch_duration_minutes` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shiftStartHour",
+            "columnName": "shift_start_hour",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shiftEndHour",
+            "columnName": "shift_end_hour",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shiftDuration",
+            "columnName": "shift_duration",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shiftType",
+            "columnName": "shift_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultHourlyPayAtTime",
+            "columnName": "default_hourly_pay_at_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "overtimeRateMultiAtTime",
+            "columnName": "overtime_rate_multi_at_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lateNightRateMultiAtTime",
+            "columnName": "late_night_rate_multi_at_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseShiftDurationHoursAtTime",
+            "columnName": "base_shift_duration_hours_at_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lateNightStartTimeAtTime",
+            "columnName": "late_nihgt_start_time_at_time",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lateNightEndTimeAtTime",
+            "columnName": "late_night_end_time_at_time",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lunchStartHour",
+            "columnName": "lunch_start_hour",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lunchDurationMinutes",
+            "columnName": "lunch_duration_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfb54adeafde3a2c200b8eb3d1e8b46c')"
+    ]
+  }
+}

@@ -20,7 +20,7 @@ class TimeUtils {
             return String.format("%02d:%02d", hrs, mins)
         }
 
-        fun calculateDuration(start: String, end: String): String {
+        fun calculateDuration(start: String, end: String, lunchDuration: Int): String {
             val startParts = start.split(":")
             val endParts = end.split(":")
 
@@ -37,6 +37,9 @@ class TimeUtils {
             if (totalEndMinutes < totalStartMinutes) {
                 totalEndMinutes += 24 * 60
             }
+
+            // remove lunch break
+            totalEndMinutes -= lunchDuration
 
             val durationMinutes = totalEndMinutes - totalStartMinutes
             val durationHours = durationMinutes / 60

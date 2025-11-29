@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.lucascouto.timecardapp.R
 import com.lucascouto.timecardapp.struct.AppManager
+import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.logic.WorkdaysDataLogic
 import com.lucascouto.timecardapp.struct.data.singletons.LoadingController
 import com.lucascouto.timecardapp.struct.data.singletons.ToastController
@@ -153,7 +154,7 @@ fun deleteAllData() {
     LoadingController.setLoading(true)
 
     CoroutineScope(Dispatchers.IO).launch {
-        WorkdaysDataLogic.deleteAllData()
+        DatabaseProvider.workdayRepository.truncate()
         ToastController.show("All data deleted successfully", ToastType.SUCCESS)
     }.invokeOnCompletion {
         LoadingController.setLoading(false)

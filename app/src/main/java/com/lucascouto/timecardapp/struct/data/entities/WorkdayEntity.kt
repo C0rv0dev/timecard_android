@@ -17,6 +17,7 @@ data class WorkdayEntity(
     @ColumnInfo(name = "shift_type") var shiftType: Int,
     // Shift Details - to avoid read issues when Settings change
     @ColumnInfo(name = "default_hourly_pay_at_time") var defaultHourlyPayAtTime: Int,
+    @ColumnInfo(name = "default_bonus_payment_at_time") var defaultBonusPaymentAtTime: Int = 0,
     @ColumnInfo(name = "overtime_rate_multi_at_time") var overtimeRateMultiAtTime: Int,
     @ColumnInfo(name = "late_night_rate_multi_at_time") var lateNightRateMultiAtTime: Int,
     @ColumnInfo(name = "base_shift_duration_hours_at_time") var baseShiftDurationHoursAtTime: Int,
@@ -30,6 +31,28 @@ data class WorkdayEntity(
         return LocalDate.parse(date)
     }
 
+    fun getWorkdayTypeColor(): Int {
+        val color = when (shiftType) {
+            WorkdayTypeEnum.REGULAR.value -> {
+                val shiftDuration = TimeUtils.convertTimeToMinutes(shiftDuration)
+                val baseShiftDurationHoursAtTime = baseShiftDurationHoursAtTime * 60
+
+                shiftDuration?.let {
+                    if (it < baseShiftDurationHoursAtTime) {
+                        0xFFFFA000.toInt()
+                    } else if (it > baseShiftDurationHoursAtTime) {
+                        0xFF1261A0.toInt()
+                    } else {
+                        WorkdayTypeEnum.color(shiftType)
+                    }
+                }
+            }
+            else -> null
+        }
+
+        return color ?: WorkdayTypeEnum.color(shiftType)
+    }
+
     companion object {
         fun default(id: Long? = null, localSettings: SettingsEntity? = null): WorkdayEntity {
             return WorkdayEntity(
@@ -38,10 +61,15 @@ data class WorkdayEntity(
                 // Shift defaults
                 shiftStartHour = localSettings?.shiftStartTime ?: "17:00",
                 shiftEndHour = localSettings?.shiftEndTime ?: "02:00",
-                shiftDuration = TimeUtils.calculateDuration(localSettings?.shiftStartTime ?: "17:00", localSettings?.shiftEndTime ?: "02:00"),
+                shiftDuration = TimeUtils.calculateDuration(
+                    localSettings?.shiftStartTime ?: "17:00",
+                    localSettings?.shiftEndTime ?: "02:00",
+                    localSettings?.lunchDurationMinutes ?: 60
+                ),
                 shiftType = WorkdayTypeEnum.REGULAR.value,
                 // Shift details defaults
                 defaultHourlyPayAtTime = localSettings?.defaultHourlyPay ?: 1000,
+                defaultBonusPaymentAtTime = localSettings?.bonusPayment ?: 0,
                 overtimeRateMultiAtTime = localSettings?.overtimeRateMultiplier ?: 25,
                 lateNightRateMultiAtTime = localSettings?.lateNightRateMultiplier ?: 25,
                 baseShiftDurationHoursAtTime = localSettings?.baseShiftDurationHours ?: 8,

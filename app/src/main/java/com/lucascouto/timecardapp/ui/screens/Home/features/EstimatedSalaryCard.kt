@@ -16,7 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun EstimatedSalaryCard(estimatedSalary: Int? = 123456) {
+fun EstimatedSalaryCard(
+    estimatedSalary: Int? = 123456,
+    estimatedRegularSalary: Int = 100000,
+    estimatedOvertimeSalary: Int = 23000,
+    estimatedLateNightSalary: Int = 456,
+) {
     val formattedSalary = String.format("%,d", estimatedSalary).replace(',', '.')
 
     Card {
@@ -27,10 +32,42 @@ fun EstimatedSalaryCard(estimatedSalary: Int? = 123456) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text("Estimated Salary", style = TextStyle(fontSize = 16.sp))
+
             Spacer(Modifier.padding(4.dp))
+
             Text(
                 "¥${formattedSalary}",
                 style = TextStyle(fontSize = 42.sp, color = Color(0xFF2D7332))
+            )
+
+            Spacer(Modifier.padding(4.dp))
+
+            Text(
+                "Regular payment: ¥${String.format("%,d", estimatedRegularSalary).replace(',', '.')}",
+                style = TextStyle(
+                    color = Color(0xFF555555),
+                    fontSize = 12.sp,
+                )
+            )
+
+            Spacer(Modifier.padding(4.dp))
+
+            Text(
+                "Overtime payment: ¥${String.format("%,d", estimatedOvertimeSalary).replace(',', '.')}",
+                style = TextStyle(
+                    color = Color(0xFF555555),
+                    fontSize = 12.sp,
+                )
+            )
+
+            Spacer(Modifier.padding(4.dp))
+
+            Text(
+                "Late night payment: ¥${String.format("%,d", estimatedLateNightSalary).replace(',', '.')}",
+                style = TextStyle(
+                    color = Color(0xFF555555),
+                    fontSize = 12.sp,
+                )
             )
         }
     }

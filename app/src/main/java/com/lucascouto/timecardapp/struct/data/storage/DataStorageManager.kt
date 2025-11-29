@@ -48,6 +48,7 @@ class DataStorageManager(private val context: Context) {
     suspend fun saveSettings(settings: SettingsEntity) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.HOURLY_PAY] = settings.defaultHourlyPay
+            preferences[PreferencesKeys.BONUS_PAYMENT] = settings.bonusPayment
             preferences[PreferencesKeys.OVERTIME_RATE] = settings.overtimeRateMultiplier
             preferences[PreferencesKeys.LATE_NIGHT_RATE] = settings.lateNightRateMultiplier
             preferences[PreferencesKeys.BASE_SHIFT_HOURS] = settings.baseShiftDurationHours
@@ -60,8 +61,6 @@ class DataStorageManager(private val context: Context) {
             preferences[PreferencesKeys.RECEIVE_NOTIFICATIONS] = settings.receiveNotifications
             preferences[PreferencesKeys.NOTIFICATION_TIME] = settings.notificationTime
         }
-
-        println("Saved Settings: $settings")
     }
 
     suspend fun saveExportPath(path: Uri) {

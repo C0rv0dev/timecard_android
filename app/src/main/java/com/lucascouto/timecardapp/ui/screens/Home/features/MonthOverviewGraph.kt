@@ -24,6 +24,7 @@ fun MonthOverviewGraph(
     totalRegisteredDays: Int? = 22,
     totalWorkedDays: Int? = 20,
     totalWorkedHours: Int? = 120,
+    totalRegularHours: Int? = 100,
     totalOvertimeHours: Int? = 20
 ) {
     val gapSize = 3
@@ -93,6 +94,26 @@ fun MonthOverviewGraph(
 
                 Text(
                     "$totalWorkedHours hours",
+                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
+                )
+            }
+
+            Spacer(Modifier.padding(4.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Text("Total Regular Hours", style = TextStyle(fontSize = 16.sp))
+
+                Row {
+                    for (i in 0 until gapSize) {
+                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
+                    }
+                }
+
+                Text(
+                    "$totalRegularHours hours",
                     style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
                 )
             }

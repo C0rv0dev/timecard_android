@@ -35,15 +35,11 @@ fun HomeScreen(
                 .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            EstimatedSalaryCard(viewModel.estimatedSalary.value)
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            MonthOverviewGraph(
-                totalRegisteredDays = viewModel.totalRegisteredDays.value,
-                totalWorkedDays = viewModel.totalWorkedDays.value,
-                totalWorkedHours = viewModel.totalWorkedHours.value,
-                totalOvertimeHours = viewModel.totalOvertimeHours.value
+            EstimatedSalaryCard(
+                viewModel.estimatedSalary.value,
+                viewModel.estimatedRegularSalary.value,
+                viewModel.estimatedOvertimeSalary.value,
+                viewModel.estimatedLateNightSalaryState.value
             )
 
             Spacer(modifier = Modifier.padding(8.dp))
@@ -60,6 +56,16 @@ fun HomeScreen(
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            MonthOverviewGraph(
+                totalRegisteredDays = viewModel.totalRegisteredDays.value,
+                totalWorkedDays = viewModel.totalWorkedDays.value,
+                totalWorkedHours = viewModel.totalWorkedHours.value,
+                totalRegularHours = viewModel.totalRegularHours.value,
+                totalOvertimeHours = viewModel.totalOvertimeHours.value
+            )
         }
     }
 }

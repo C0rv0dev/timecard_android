@@ -3,6 +3,7 @@ package com.lucascouto.timecardapp.struct.data.entities
 data class SettingsEntity(
     // Default values
     var defaultHourlyPay: Int,
+    var bonusPayment: Int,
     var overtimeRateMultiplier: Int,
     var lateNightRateMultiplier: Int,
     // Shift details
@@ -22,6 +23,7 @@ data class SettingsEntity(
         fun default(): SettingsEntity {
             return SettingsEntity(
                 defaultHourlyPay = 1000,
+                bonusPayment = 0,
                 overtimeRateMultiplier = 25,
                 lateNightRateMultiplier = 25,
                 baseShiftDurationHours = 8,

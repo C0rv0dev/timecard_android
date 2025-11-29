@@ -130,21 +130,6 @@ fun WorkdayInformationCard(
                         Text(workday.shiftDuration)
                     }
 
-                    Row(
-                        Modifier
-                            .padding(4.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Shift Effective Duration")
-                        Text(
-                            TimeUtils.convertMinutesToTime(
-                                TimeUtils.convertTimeToMinutes(workday.shiftDuration)
-                                    ?.minus(workday.lunchDurationMinutes) ?: 0
-                            )
-                        )
-                    }
-
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
                     Row(

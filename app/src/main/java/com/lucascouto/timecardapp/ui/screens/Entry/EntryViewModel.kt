@@ -41,7 +41,11 @@ class EntryViewModel(
         // Shift parse
         workday.shiftStartHour = TimeUtils.parseTime(workday.shiftStartHour)
         workday.shiftEndHour = TimeUtils.parseTime(workday.shiftEndHour)
-        workday.shiftDuration = TimeUtils.calculateDuration(workday.shiftStartHour, workday.shiftEndHour)
+        workday.shiftDuration = TimeUtils.calculateDuration(
+            workday.shiftStartHour,
+            workday.shiftEndHour,
+            workday.lunchDurationMinutes,
+        )
         // Lunch parse
         workday.lunchStartHour = TimeUtils.parseTime(workday.lunchStartHour)
 

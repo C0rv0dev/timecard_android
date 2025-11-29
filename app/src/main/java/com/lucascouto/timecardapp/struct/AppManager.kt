@@ -12,6 +12,7 @@ import com.lucascouto.timecardapp.sys.config.BuildConfig
 
 object PreferencesKeys {
     val HOURLY_PAY = intPreferencesKey("hourly_pay")
+    val BONUS_PAYMENT = intPreferencesKey("bonus_payment")
     val OVERTIME_RATE = intPreferencesKey("overtime_rate")
     val LATE_NIGHT_RATE = intPreferencesKey("late_night_rate")
     val BASE_SHIFT_HOURS = intPreferencesKey("base_shift_hours")

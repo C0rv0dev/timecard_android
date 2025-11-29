@@ -17,6 +17,9 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
     private val _defaultHourlyPay: MutableState<Int> = mutableIntStateOf(0)
     val defaultHourlyPay by lazy { _defaultHourlyPay }
 
+    private val _bonusPayment: MutableState<Int> = mutableIntStateOf(0)
+    val bonusPayment by lazy { _bonusPayment }
+
     private val _defaultOvertimeRateMultiplier: MutableState<Int> = mutableIntStateOf(0)
     val defaultOvertimeRate by lazy { _defaultOvertimeRateMultiplier }
 
@@ -65,6 +68,11 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
     fun updateHourlyPay(newPay: String) {
         val pay = newPay.toIntOrNull() ?: 0
         _defaultHourlyPay.value = pay
+    }
+
+    fun updateBonusPayment(newBonus: String) {
+        val bonus = newBonus.toIntOrNull() ?: 0
+        _bonusPayment.value = bonus
     }
 
     fun updateOvertimeRate(newRate: String) {
@@ -135,6 +143,7 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
     fun saveSettings() {
         val settings = SettingsEntity(
             defaultHourlyPay = _defaultHourlyPay.value,
+            bonusPayment = _bonusPayment.value,
             overtimeRateMultiplier = _defaultOvertimeRateMultiplier.value,
             lateNightRateMultiplier = _lateNightRateMultiplier.value,
             baseShiftDurationHours = _baseShiftDurationHours.value,

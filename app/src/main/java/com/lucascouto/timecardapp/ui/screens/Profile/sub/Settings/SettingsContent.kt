@@ -49,6 +49,21 @@ fun SettingsContent(viewModel: SettingsViewModel) {
         Spacer(Modifier.padding(4.dp))
 
         OutlinedTextField(
+            label = { Text("Bonus") },
+            value = viewModel.bonusPayment.value.toString(),
+            onValueChange = { viewModel.updateBonusPayment(it) },
+            readOnly = !viewModel.isEditing.value,
+            enabled = viewModel.isEditing.value,
+            modifier = Modifier.fillMaxWidth(),
+            // number keyboard
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            )
+        )
+
+        Spacer(Modifier.padding(4.dp))
+
+        OutlinedTextField(
             label = { Text("Overtime Rate (%)") },
             value = viewModel.defaultOvertimeRate.value.toString(),
             onValueChange = { viewModel.updateOvertimeRate(it) },

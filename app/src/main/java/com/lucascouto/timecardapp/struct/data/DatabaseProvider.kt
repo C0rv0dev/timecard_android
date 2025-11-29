@@ -14,6 +14,8 @@ object DatabaseProvider {
             context,
             AppDatabase::class.java,
             BuildConfig.databaseName
+        ).addMigrations(
+            AppDatabase.DatabaseAutoMigrations.MIGRATION_1_2
         ).build()
     }
 }
