@@ -17,7 +17,7 @@ data class WorkdayEntity(
     @ColumnInfo(name = "shift_type") var shiftType: Int,
     // Shift Details - to avoid read issues when Settings change
     @ColumnInfo(name = "default_hourly_pay_at_time") var defaultHourlyPayAtTime: Int,
-    @ColumnInfo(name = "default_bonus_payment_at_time") var defaultBonusPaymentAtTime: Int = 0,
+    @ColumnInfo(name = "default_bonus_payment_at_time") var defaultBonusPaymentAtTime: Int,
     @ColumnInfo(name = "overtime_rate_multi_at_time") var overtimeRateMultiAtTime: Int,
     @ColumnInfo(name = "late_night_rate_multi_at_time") var lateNightRateMultiAtTime: Int,
     @ColumnInfo(name = "base_shift_duration_hours_at_time") var baseShiftDurationHoursAtTime: Int,
@@ -27,31 +27,6 @@ data class WorkdayEntity(
     @ColumnInfo(name = "lunch_start_hour") var lunchStartHour: String,
     @ColumnInfo(name = "lunch_duration_minutes") var lunchDurationMinutes: Int,
 ) {
-    fun getLocalDate(): LocalDate {
-        return LocalDate.parse(date)
-    }
-
-    fun getWorkdayTypeColor(): Int {
-        val color = when (shiftType) {
-            WorkdayTypeEnum.REGULAR.value -> {
-                val shiftDuration = TimeUtils.convertTimeToMinutes(shiftDuration)
-                val baseShiftDurationHoursAtTime = baseShiftDurationHoursAtTime * 60
-
-                shiftDuration?.let {
-                    if (it < baseShiftDurationHoursAtTime) {
-                        0xFFFFA000.toInt()
-                    } else if (it > baseShiftDurationHoursAtTime) {
-                        0xFF1261A0.toInt()
-                    } else {
-                        WorkdayTypeEnum.color(shiftType)
-                    }
-                }
-            }
-            else -> null
-        }
-
-        return color ?: WorkdayTypeEnum.color(shiftType)
-    }
 
     companion object {
         fun default(id: Long? = null, localSettings: SettingsEntity? = null): WorkdayEntity {
@@ -80,5 +55,109 @@ data class WorkdayEntity(
                 lunchDurationMinutes = localSettings?.lunchDurationMinutes ?: 60,
             )
         }
+    }
+
+    fun getLocalDate(): LocalDate {
+        return LocalDate.parse(date)
+    }
+
+    fun getWorkdayTypeColor(): Int {
+        val color = when (shiftType) {
+            WorkdayTypeEnum.REGULAR.value -> {
+                val shiftDuration = TimeUtils.convertTimeToMinutes(shiftDuration)
+                val baseShiftDurationHoursAtTime = baseShiftDurationHoursAtTime * 60
+
+                shiftDuration?.let {
+                    if (it < baseShiftDurationHoursAtTime) {
+                        0xFFFFA000.toInt()
+                    } else if (it > baseShiftDurationHoursAtTime) {
+                        0xFF1261A0.toInt()
+                    } else {
+                        WorkdayTypeEnum.color(shiftType)
+                    }
+                }
+            }
+
+            else -> null
+        }
+
+        return color ?: WorkdayTypeEnum.color(shiftType)
+    }
+
+    fun calculateSalary(): Map<String, Int> {
+        val salaries: MutableMap<String, Int> = mutableMapOf()
+
+        // set map keys
+        salaries to ("regular" to 0)
+        salaries to ("bonus" to 0)
+        salaries to ("overtime" to 0)
+        salaries to ("late_night" to 0)
+        salaries to ("allowances" to 0)
+
+        if (shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) return salaries
+        else if (shiftType == WorkdayTypeEnum.PAID_LEAVE.value) {
+            salaries["allowances"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
+            return salaries
+        }
+
+        val shiftDurationMinutes = TimeUtils.convertTimeToMinutes(shiftDuration) ?: 0
+        val baseShiftDurationMinutes = baseShiftDurationHoursAtTime * 60
+
+        // calc bonus payment
+        // if shift is grater than base shift duration, bonus is only for base hours
+        salaries["bonus"] = if (shiftDurationMinutes > baseShiftDurationMinutes) {
+            baseShiftDurationHoursAtTime * defaultBonusPaymentAtTime
+        } else {
+            val regularHours = shiftDurationMinutes / 60
+            regularHours * defaultBonusPaymentAtTime
+        }
+
+        // if is overtime
+        if (shiftDurationMinutes > baseShiftDurationMinutes) {
+            val overtimeRate: Float = 1f + (overtimeRateMultiAtTime / 100f)
+            val overtimeHours = (shiftDurationMinutes - baseShiftDurationMinutes) / 60
+            salaries["regular"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
+            salaries["overtime"] =
+                ((defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * overtimeHours * overtimeRate).toInt()
+        } else {
+            val regularHours = shiftDurationMinutes / 60
+            salaries["regular"] = regularHours * defaultHourlyPayAtTime
+        }
+
+        // TODO: calc late night payment when has info
+//        val lateNightMinutes = calculateLateNightMinutes()
+//        val lateNightRate: Float = 1f + (lateNightRateMultiAtTime / 100f)
+//        salaries["late_night"] =
+//            ((defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * (lateNightMinutes / 60f) * lateNightRate).toInt()
+
+            return salaries
+    }
+
+    private fun calculateLateNightMinutes(): Int {
+        val shiftStartMinutes = TimeUtils.convertTimeToMinutes(shiftStartHour) ?: return 0
+        val shiftEndMinutes = TimeUtils.convertTimeToMinutes(shiftEndHour) ?: return 0
+        val lateNightStartMinutes = TimeUtils.convertTimeToMinutes(lateNightStartTimeAtTime) ?: return 0
+        val lateNightEndMinutes = TimeUtils.convertTimeToMinutes(lateNightEndTimeAtTime) ?: return 0
+
+        var totalLateNightMinutes = 0
+
+        var currentMinute = shiftStartMinutes
+        while (true) {
+            val isInLateNight = if (lateNightStartMinutes < lateNightEndMinutes) {
+                currentMinute in lateNightStartMinutes until lateNightEndMinutes
+            } else {
+                currentMinute >= lateNightStartMinutes || currentMinute < lateNightEndMinutes
+            }
+
+            if (isInLateNight) {
+                totalLateNightMinutes++
+            }
+
+            if (currentMinute == shiftEndMinutes) break
+
+            currentMinute = (currentMinute + 1) % (24 * 60)
+        }
+
+        return totalLateNightMinutes
     }
 }

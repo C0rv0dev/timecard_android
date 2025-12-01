@@ -126,6 +126,7 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
             val settings = dataStorageManager.getSettings()
 
             _defaultHourlyPay.value = settings.defaultHourlyPay
+            _bonusPayment.value = settings.bonusPayment
             _defaultOvertimeRateMultiplier.value = settings.overtimeRateMultiplier
             _lateNightRateMultiplier.value = settings.lateNightRateMultiplier
             _baseShiftDurationHours.value = settings.baseShiftDurationHours

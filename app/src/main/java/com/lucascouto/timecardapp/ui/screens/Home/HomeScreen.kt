@@ -37,6 +37,8 @@ fun HomeScreen(
         ) {
             EstimatedSalaryCard(
                 viewModel.estimatedSalary.value,
+                viewModel.estimatedBonusSalary.value,
+                viewModel.estimatedPaidAllowances.value,
                 viewModel.estimatedRegularSalary.value,
                 viewModel.estimatedOvertimeSalary.value,
                 viewModel.estimatedLateNightSalaryState.value

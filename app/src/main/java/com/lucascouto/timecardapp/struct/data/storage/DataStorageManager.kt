@@ -22,6 +22,7 @@ class DataStorageManager(private val context: Context) {
         val prefs = preferences.first()
         settings = SettingsEntity(
             defaultHourlyPay = prefs[PreferencesKeys.HOURLY_PAY] ?: settings.defaultHourlyPay,
+            bonusPayment = prefs[PreferencesKeys.BONUS_PAYMENT] ?: settings.bonusPayment,
             overtimeRateMultiplier = prefs[PreferencesKeys.OVERTIME_RATE]
                 ?: settings.overtimeRateMultiplier,
             lateNightRateMultiplier = prefs[PreferencesKeys.LATE_NIGHT_RATE]

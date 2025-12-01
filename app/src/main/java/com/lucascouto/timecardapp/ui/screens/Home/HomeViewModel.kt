@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lucascouto.timecardapp.struct.data.DatabaseProvider
 import com.lucascouto.timecardapp.struct.data.entities.WorkdayEntity
+import com.lucascouto.timecardapp.struct.data.enums.WorkdayTypeEnum
 import com.lucascouto.timecardapp.struct.data.repositories.WorkdayRepository
+import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.CalendarState
 import com.lucascouto.timecardapp.ui.screens.Home.features.calendar.models.CalendarEvent
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +27,7 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
     private lateinit var _workdays: List<WorkdayEntity>
 
     // Estimated Salary
-    private var _estimatedSalary: MutableState<Int?> = mutableStateOf(null)
+    private var _estimatedSalary: MutableState<Int> = mutableIntStateOf(0)
     val estimatedSalary: State<Int?> by lazy { _estimatedSalary }
 
     private var _estimatedRegularSalary: MutableState<Int> = mutableIntStateOf(0)
@@ -36,6 +38,12 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
 
     private var _estimatedLateNightSalary: MutableState<Int> = mutableIntStateOf(0)
     val estimatedLateNightSalaryState: State<Int> by lazy { _estimatedLateNightSalary }
+
+    private var _estimatedBonusSalary:  MutableState<Int> = mutableIntStateOf(0)
+    val estimatedBonusSalary: State<Int> by lazy { _estimatedBonusSalary }
+
+    private var _estimatedPaidAllowances: MutableState<Int> = mutableIntStateOf(0)
+    val estimatedPaidAllowances: State<Int> by lazy { _estimatedPaidAllowances }
 
     // Total worked hours
     private var _totalWorkedHours: MutableState<Int?> = mutableStateOf(null)
@@ -70,10 +78,12 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
                 workdayRepository.fetchByMonth(_calendarState.yearMonth())
             }.also { workdays ->
                 // Reset all calculated values
-                _estimatedSalary.value = null
+                _estimatedSalary.value = 0
                 _estimatedRegularSalary.value = 0
                 _estimatedOvertimeSalary.value = 0
                 _estimatedLateNightSalary.value = 0
+                _estimatedPaidAllowances.value = 0
+                _estimatedBonusSalary.value = 0
                 _totalWorkedHours.value = null
                 _totalWorkedDays.value = null
                 _totalOvertimeHours.value = null
@@ -91,10 +101,25 @@ class HomeViewModel(private val workdayRepository: WorkdayRepository = DatabaseP
 
                 // Total registered days
                 _totalRegisteredDays.value = workdays.size
+                _totalWorkedDays.value = workdays.count { it.shiftType == WorkdayTypeEnum.REGULAR.value }
 
                 // Other calculations
                 for (workday in workdays) {
-                    // TODO: calculate workdays and set payments based on minutes
+                    val salaries = workday.calculateSalary()
+
+                    _estimatedBonusSalary.value += salaries["bonus"] ?: 0
+                    _estimatedRegularSalary.value += salaries["regular"] ?: 0
+                    _estimatedOvertimeSalary.value += salaries["overtime"] ?: 0
+                    _estimatedPaidAllowances.value += salaries["allowances"] ?: 0
+                    _estimatedLateNightSalary.value += salaries["late_night"] ?: 0
+
+                    _estimatedSalary.value += (salaries["bonus"] ?: 0) +
+                            (salaries["regular"] ?: 0) +
+                            (salaries["overtime"] ?: 0) +
+                            (salaries["late_night"] ?: 0) +
+                            (salaries["allowances"] ?: 0)
+
+                    _totalWorkedHours.value = _totalWorkedHours.value?.plus(TimeUtils.convertTimeToMinutes(workday.shiftDuration) ?: 0)
                 }
             }
         }

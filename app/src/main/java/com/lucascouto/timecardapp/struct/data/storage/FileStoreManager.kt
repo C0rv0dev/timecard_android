@@ -147,6 +147,7 @@ class FileStoreManager {
                     lunchStartHour = obj.getString("lunchStartHour"),
                     lunchDurationMinutes = obj.getInt("lunchDurationMinutes"),
                     defaultHourlyPayAtTime = obj.getInt("defaultHourlyPayAtTime"),
+                    defaultBonusPaymentAtTime = obj.getInt("defaultBonusPaymentAtTime"),
                     overtimeRateMultiAtTime = obj.getInt("overtimeRateMultiAtTime"),
                     lateNightRateMultiAtTime = obj.getInt("lateNightRateMultiAtTime"),
                     baseShiftDurationHoursAtTime = obj.getInt("baseShiftDurationHoursAtTime"),
