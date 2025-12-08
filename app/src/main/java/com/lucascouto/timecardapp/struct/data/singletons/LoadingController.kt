@@ -6,7 +6,6 @@ object LoadingController {
     private val _loading = MutableStateFlow(false)
     val loading = _loading
 
-
     fun setLoading(set: Boolean) {
         loading.value = set
     }

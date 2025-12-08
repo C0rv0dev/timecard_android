@@ -1,34 +1,34 @@
 package com.lucascouto.timecardapp.ui.screens.Home.features
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lucascouto.timecardapp.ui.components.HorizontalDividerWithLabel
+import com.lucascouto.timecardapp.ui.components.InfoRow
 
 @Composable
 fun EstimatedSalaryCard(
-    estimatedSalary: Int? = 123456,
+    estimatedNetSalary: Int? = 123456,
+    estimatedGrossSalary: Int? = 123456,
     estimatedBonusSalary: Int = 20000,
+    estimatedLocomotionBonus: Int = 1500,
     estimatedPaidAllowances: Int = 5000,
     estimatedRegularSalary: Int = 100000,
     estimatedOvertimeSalary: Int = 23000,
     estimatedLateNightSalary: Int = 456,
+    // deductions
+    estimatedUnemploymentInsurance: Int = 0,
 ) {
-    val formattedSalary = String.format("%,d", estimatedSalary).replace(',', '.')
-
     Card {
         Column(
             modifier = Modifier
@@ -36,62 +36,127 @@ fun EstimatedSalaryCard(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Estimated Salary", style = TextStyle(fontSize = 16.sp))
+            Text("Estimated Salary", style = TextStyle(fontSize = 20.sp))
 
             Spacer(Modifier.padding(4.dp))
 
-            InfoRow("Regular payment", estimatedRegularSalary)
+            HorizontalDividerWithLabel("Earnings")
+
+            InfoRow(
+                label = "Regular payment",
+                value = estimatedRegularSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
 
             Spacer(Modifier.padding(4.dp))
 
-            InfoRow("Bonus payment", estimatedBonusSalary)
+            InfoRow(
+                label = "Bonus payment",
+                value = estimatedBonusSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
 
             Spacer(Modifier.padding(4.dp))
 
-            InfoRow("Overtime payment", estimatedOvertimeSalary)
+            InfoRow(
+                label = "Overtime payment",
+                value = estimatedOvertimeSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
 
             Spacer(Modifier.padding(4.dp))
 
-            // TODO: remove comment when late night works
-//            InfoRow("Late night payment", estimatedLateNightSalary)
-//
-//            Spacer(Modifier.padding(4.dp))
+            InfoRow(
+                label = "Locomotion bonus",
+                value = estimatedLocomotionBonus,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
 
-            InfoRow("Paid allowances", estimatedPaidAllowances)
+            Spacer(Modifier.padding(4.dp))
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            InfoRow(
+                label = "Late night payment",
+                value = estimatedLateNightSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
 
-            Text("Total", style = TextStyle(fontSize = 16.sp))
+            Spacer(Modifier.padding(4.dp))
 
-            Text(
-                "¥${formattedSalary}",
-                style = TextStyle(fontSize = 42.sp, color = Color(0xFF2D7332))
+            InfoRow(
+                label = "Paid allowances",
+                value = estimatedPaidAllowances,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = false
+            )
+
+            HorizontalDividerWithLabel("Deductions")
+
+            InfoRow(
+                label = "Unemployment insurance",
+                value = estimatedUnemploymentInsurance,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = false,
+                isDeduction = true,
+                highlight = false
+            )
+
+            HorizontalDividerWithLabel("Total")
+
+            InfoRow(
+                label = "Estimated Gross Salary",
+                value = estimatedGrossSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = true
+            )
+
+            Spacer(Modifier.padding(4.dp))
+
+            InfoRow(
+                label = "Estimated Net Salary",
+                value = estimatedNetSalary,
+                isDayFormat = false,
+                isHourFormat = false,
+                isMoneyFormat = true,
+                isEarning = true,
+                isDeduction = false,
+                highlight = true
             )
         }
-    }
-}
-
-@Composable
-private fun InfoRow(title: String, value: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            "${title}:",
-            style = TextStyle(
-                color = Color(0xFF555555),
-                fontSize = 12.sp,
-            )
-        )
-
-        Text(
-            "¥${String.format("%,d", value).replace(',', '.')}",
-            style = TextStyle(
-                color = Color(0xFF555555),
-                fontSize = 12.sp,
-            )
-        )
     }
 }
 

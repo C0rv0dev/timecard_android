@@ -12,13 +12,16 @@ import com.lucascouto.timecardapp.struct.data.storage.DataStorageManager
 import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val dataStorageManager: DataStorageManager): ViewModel() {
+class SettingsViewModel(private val dataStorageManager: DataStorageManager) : ViewModel() {
     // vars
     private val _defaultHourlyPay: MutableState<Int> = mutableIntStateOf(0)
     val defaultHourlyPay by lazy { _defaultHourlyPay }
 
     private val _bonusPayment: MutableState<Int> = mutableIntStateOf(0)
     val bonusPayment by lazy { _bonusPayment }
+
+    private val _locomotionAllowance: MutableState<Int> = mutableIntStateOf(0)
+    val locomotionAllowance by lazy { _locomotionAllowance }
 
     private val _defaultOvertimeRateMultiplier: MutableState<Int> = mutableIntStateOf(0)
     val defaultOvertimeRate by lazy { _defaultOvertimeRateMultiplier }
@@ -75,6 +78,11 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
         _bonusPayment.value = bonus
     }
 
+    fun updateLocomotionAllowance(newAllowance: String) {
+        val allowance = newAllowance.toIntOrNull() ?: 0
+        _locomotionAllowance.value = allowance
+    }
+
     fun updateOvertimeRate(newRate: String) {
         val rate = newRate.toIntOrNull() ?: 0
         _defaultOvertimeRateMultiplier.value = rate
@@ -127,6 +135,7 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
 
             _defaultHourlyPay.value = settings.defaultHourlyPay
             _bonusPayment.value = settings.bonusPayment
+            _locomotionAllowance.value = settings.locomotionAllowance
             _defaultOvertimeRateMultiplier.value = settings.overtimeRateMultiplier
             _lateNightRateMultiplier.value = settings.lateNightRateMultiplier
             _baseShiftDurationHours.value = settings.baseShiftDurationHours
@@ -145,6 +154,7 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
         val settings = SettingsEntity(
             defaultHourlyPay = _defaultHourlyPay.value,
             bonusPayment = _bonusPayment.value,
+            locomotionAllowance = _locomotionAllowance.value,
             overtimeRateMultiplier = _defaultOvertimeRateMultiplier.value,
             lateNightRateMultiplier = _lateNightRateMultiplier.value,
             baseShiftDurationHours = _baseShiftDurationHours.value,
@@ -166,20 +176,8 @@ class SettingsViewModel(private val dataStorageManager: DataStorageManager): Vie
     fun resetToDefault() {
         val defaultSettings = SettingsEntity.default()
 
-        _defaultHourlyPay.value = defaultSettings.defaultHourlyPay
-        _defaultOvertimeRateMultiplier.value = defaultSettings.overtimeRateMultiplier
-        _lateNightRateMultiplier.value = defaultSettings.lateNightRateMultiplier
-        _baseShiftDurationHours.value = defaultSettings.baseShiftDurationHours
-        _shiftStartTime.value = defaultSettings.shiftStartTime
-        _shiftEndTime.value = defaultSettings.shiftEndTime
-        _lateNightStartTime.value = defaultSettings.lateNightStartTime
-        _lateNightEndTime.value = defaultSettings.lateNightEndTime
-        _lunchStartTime.value = defaultSettings.lunchStartTime
-        _lunchDurationMinutes.value = defaultSettings.lunchDurationMinutes
-        _receiveNotifications.value = defaultSettings.receiveNotifications
-        _notificationTime.value = defaultSettings.notificationTime
-
-        // Save to database or shared preferences here
-        println("Settings reset to default: $defaultSettings")
+        viewModelScope.launch {
+            dataStorageManager.saveSettings(defaultSettings)
+        }
     }
 }

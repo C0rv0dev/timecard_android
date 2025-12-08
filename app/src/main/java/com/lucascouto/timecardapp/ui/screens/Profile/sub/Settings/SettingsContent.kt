@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.lucascouto.timecardapp.ui.components.ActionButton
+import com.lucascouto.timecardapp.ui.components.HorizontalDividerWithLabel
 import com.lucascouto.timecardapp.ui.components.TimePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,28 +31,10 @@ fun SettingsContent(viewModel: SettingsViewModel) {
             .padding(8.dp)
             .verticalScroll(scrollState)
     ) {
-        Text("Default Values")
-        Spacer(Modifier.padding(8.dp))
-
         OutlinedTextField(
             label = { Text("Hourly Pay") },
             value = viewModel.defaultHourlyPay.value.toString(),
             onValueChange = { viewModel.updateHourlyPay(it) },
-            readOnly = !viewModel.isEditing.value,
-            enabled = viewModel.isEditing.value,
-            modifier = Modifier.fillMaxWidth(),
-            // number keyboard
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
-            )
-        )
-
-        Spacer(Modifier.padding(4.dp))
-
-        OutlinedTextField(
-            label = { Text("Bonus") },
-            value = viewModel.bonusPayment.value.toString(),
-            onValueChange = { viewModel.updateBonusPayment(it) },
             readOnly = !viewModel.isEditing.value,
             enabled = viewModel.isEditing.value,
             modifier = Modifier.fillMaxWidth(),
@@ -91,9 +74,37 @@ fun SettingsContent(viewModel: SettingsViewModel) {
             )
         )
 
-        Spacer(Modifier.padding(8.dp))
-        Text("Default Shift Times")
-        Spacer(Modifier.padding(8.dp))
+        HorizontalDividerWithLabel("Bonuses")
+
+        OutlinedTextField(
+            label = { Text("Bonus") },
+            value = viewModel.bonusPayment.value.toString(),
+            onValueChange = { viewModel.updateBonusPayment(it) },
+            readOnly = !viewModel.isEditing.value,
+            enabled = viewModel.isEditing.value,
+            modifier = Modifier.fillMaxWidth(),
+            // number keyboard
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            )
+        )
+
+        Spacer(Modifier.padding(4.dp))
+
+        OutlinedTextField(
+            label = { Text("Locomotion Bonus") },
+            value = viewModel.locomotionAllowance.value.toString(),
+            onValueChange = { viewModel.updateLocomotionAllowance(it) },
+            readOnly = !viewModel.isEditing.value,
+            enabled = viewModel.isEditing.value,
+            modifier = Modifier.fillMaxWidth(),
+            // number keyboard
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            )
+        )
+
+        HorizontalDividerWithLabel("Shift Timings")
 
         OutlinedTextField(
             label = { Text("Base Shift Duration (hours)") },
@@ -144,9 +155,7 @@ fun SettingsContent(viewModel: SettingsViewModel) {
             enabled = viewModel.isEditing.value,
         )
 
-        Spacer(Modifier.padding(8.dp))
-        Text("Lunch")
-        Spacer(Modifier.padding(8.dp))
+        HorizontalDividerWithLabel("Lunch Break Settings")
 
         TimePickerDialog(
             label = "Lunch Start Time",
@@ -194,7 +203,7 @@ fun SettingsContent(viewModel: SettingsViewModel) {
         ActionButton(
             buttonContent = { Text("Reset to Defaults") },
             dialogContent = { Text("Are you sure you want to reset all settings to their default values? This action cannot be undone.") },
-            onConfirm = { TODO() },
+            onConfirm = { viewModel.resetToDefault() },
         )
     }
 }

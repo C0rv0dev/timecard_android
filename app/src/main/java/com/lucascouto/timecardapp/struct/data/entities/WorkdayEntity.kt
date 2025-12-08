@@ -84,59 +84,65 @@ data class WorkdayEntity(
         return color ?: WorkdayTypeEnum.color(shiftType)
     }
 
-    fun calculateSalary(): Map<String, Int> {
-        val salaries: MutableMap<String, Int> = mutableMapOf()
+    fun getWorkdayData(): Map<String, Int> {
+        val data: MutableMap<String, Int> = mutableMapOf()
 
-        // set map keys
-        salaries to ("regular" to 0)
-        salaries to ("bonus" to 0)
-        salaries to ("overtime" to 0)
-        salaries to ("late_night" to 0)
-        salaries to ("allowances" to 0)
+        // hours
+        data to ("regular_hours" to 0)
+        data to ("overtime_hours" to 0)
+        data to ("late_night_hours" to 0)
+        // salaries
+        data to ("regular" to 0)
+        data to ("bonus" to 0)
+        data to ("overtime" to 0)
+        data to ("late_night" to 0)
+        data to ("allowances" to 0)
 
-        if (shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value) return salaries
+        if (shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value || shiftType == WorkdayTypeEnum.HOLIDAY.value)
+            return data
         else if (shiftType == WorkdayTypeEnum.PAID_LEAVE.value) {
-            salaries["allowances"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
-            return salaries
+            data["allowances"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
+            return data
         }
 
         val shiftDurationMinutes = TimeUtils.convertTimeToMinutes(shiftDuration) ?: 0
         val baseShiftDurationMinutes = baseShiftDurationHoursAtTime * 60
+        val regularHours = shiftDurationMinutes / 60
 
         // calc bonus payment
         // if shift is grater than base shift duration, bonus is only for base hours
-        salaries["bonus"] = if (shiftDurationMinutes > baseShiftDurationMinutes) {
-            baseShiftDurationHoursAtTime * defaultBonusPaymentAtTime
-        } else {
-            val regularHours = shiftDurationMinutes / 60
-            regularHours * defaultBonusPaymentAtTime
-        }
-
-        // if is overtime
         if (shiftDurationMinutes > baseShiftDurationMinutes) {
             val overtimeRate: Float = 1f + (overtimeRateMultiAtTime / 100f)
             val overtimeHours = (shiftDurationMinutes - baseShiftDurationMinutes) / 60
-            salaries["regular"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
-            salaries["overtime"] =
+
+            data["bonus"] = baseShiftDurationHoursAtTime * defaultBonusPaymentAtTime
+            data["regular"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
+            data["overtime"] =
                 ((defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * overtimeHours * overtimeRate).toInt()
+
+            data["overtime_hours"] = overtimeHours
+            data["regular_hours"] = baseShiftDurationHoursAtTime
         } else {
-            val regularHours = shiftDurationMinutes / 60
-            salaries["regular"] = regularHours * defaultHourlyPayAtTime
+            data["bonus"] = regularHours * defaultBonusPaymentAtTime
+            data["regular"] = regularHours * defaultHourlyPayAtTime
+            data["regular_hours"] = regularHours
         }
 
-        // TODO: calc late night payment when has info
-//        val lateNightMinutes = calculateLateNightMinutes()
-//        val lateNightRate: Float = 1f + (lateNightRateMultiAtTime / 100f)
-//        salaries["late_night"] =
-//            ((defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * (lateNightMinutes / 60f) * lateNightRate).toInt()
+        val lateNightHours = calculateLateNightHours()
+        val lateNightRate: Float = lateNightRateMultiAtTime / 100f
 
-            return salaries
+        data["late_night_hours"] = lateNightHours
+        data["late_night"] =
+            (lateNightHours * (defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * lateNightRate).toInt()
+
+        return data
     }
 
-    private fun calculateLateNightMinutes(): Int {
+    private fun calculateLateNightHours(): Int {
         val shiftStartMinutes = TimeUtils.convertTimeToMinutes(shiftStartHour) ?: return 0
         val shiftEndMinutes = TimeUtils.convertTimeToMinutes(shiftEndHour) ?: return 0
-        val lateNightStartMinutes = TimeUtils.convertTimeToMinutes(lateNightStartTimeAtTime) ?: return 0
+        val lateNightStartMinutes =
+            TimeUtils.convertTimeToMinutes(lateNightStartTimeAtTime) ?: return 0
         val lateNightEndMinutes = TimeUtils.convertTimeToMinutes(lateNightEndTimeAtTime) ?: return 0
 
         var totalLateNightMinutes = 0
@@ -158,6 +164,6 @@ data class WorkdayEntity(
             currentMinute = (currentMinute + 1) % (24 * 60)
         }
 
-        return totalLateNightMinutes
+        return totalLateNightMinutes / 60
     }
 }

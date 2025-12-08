@@ -35,17 +35,6 @@ fun HomeScreen(
                 .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            EstimatedSalaryCard(
-                viewModel.estimatedSalary.value,
-                viewModel.estimatedBonusSalary.value,
-                viewModel.estimatedPaidAllowances.value,
-                viewModel.estimatedRegularSalary.value,
-                viewModel.estimatedOvertimeSalary.value,
-                viewModel.estimatedLateNightSalaryState.value
-            )
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,6 +56,21 @@ fun HomeScreen(
                 totalWorkedHours = viewModel.totalWorkedHours.value,
                 totalRegularHours = viewModel.totalRegularHours.value,
                 totalOvertimeHours = viewModel.totalOvertimeHours.value
+            )
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            EstimatedSalaryCard(
+                viewModel.netSalary.value,
+                viewModel.grossSalary.value,
+                viewModel.estimatedBonusSalary.value,
+                viewModel.estimatedLocomotionAllowance.value,
+                viewModel.estimatedPaidAllowances.value,
+                viewModel.estimatedRegularSalary.value,
+                viewModel.estimatedOvertimeSalary.value,
+                viewModel.estimatedLateNightSalaryState.value,
+                // deductions
+                viewModel.unemploymentInsuranceDeduction.value,
             )
         }
     }

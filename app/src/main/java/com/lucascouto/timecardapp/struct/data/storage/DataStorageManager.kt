@@ -23,6 +23,8 @@ class DataStorageManager(private val context: Context) {
         settings = SettingsEntity(
             defaultHourlyPay = prefs[PreferencesKeys.HOURLY_PAY] ?: settings.defaultHourlyPay,
             bonusPayment = prefs[PreferencesKeys.BONUS_PAYMENT] ?: settings.bonusPayment,
+            locomotionAllowance = prefs[PreferencesKeys.LOCOMOTION_ALLOWANCE]
+                ?: settings.locomotionAllowance,
             overtimeRateMultiplier = prefs[PreferencesKeys.OVERTIME_RATE]
                 ?: settings.overtimeRateMultiplier,
             lateNightRateMultiplier = prefs[PreferencesKeys.LATE_NIGHT_RATE]
@@ -50,6 +52,7 @@ class DataStorageManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.HOURLY_PAY] = settings.defaultHourlyPay
             preferences[PreferencesKeys.BONUS_PAYMENT] = settings.bonusPayment
+            preferences[PreferencesKeys.LOCOMOTION_ALLOWANCE] = settings.locomotionAllowance
             preferences[PreferencesKeys.OVERTIME_RATE] = settings.overtimeRateMultiplier
             preferences[PreferencesKeys.LATE_NIGHT_RATE] = settings.lateNightRateMultiplier
             preferences[PreferencesKeys.BASE_SHIFT_HOURS] = settings.baseShiftDurationHours

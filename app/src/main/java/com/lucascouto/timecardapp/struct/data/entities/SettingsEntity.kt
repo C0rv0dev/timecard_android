@@ -4,6 +4,7 @@ data class SettingsEntity(
     // Default values
     var defaultHourlyPay: Int,
     var bonusPayment: Int,
+    var locomotionAllowance: Int,
     var overtimeRateMultiplier: Int,
     var lateNightRateMultiplier: Int,
     // Shift details
@@ -24,6 +25,7 @@ data class SettingsEntity(
             return SettingsEntity(
                 defaultHourlyPay = 1000,
                 bonusPayment = 0,
+                locomotionAllowance = 0,
                 overtimeRateMultiplier = 25,
                 lateNightRateMultiplier = 25,
                 baseShiftDurationHours = 8,

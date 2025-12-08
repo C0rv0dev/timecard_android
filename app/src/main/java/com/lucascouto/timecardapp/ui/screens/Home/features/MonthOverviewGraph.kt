@@ -1,23 +1,17 @@
 package com.lucascouto.timecardapp.ui.screens.Home.features
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.lucascouto.timecardapp.ui.components.HorizontalDividerWithLabel
+import com.lucascouto.timecardapp.ui.components.InfoRow
 
 @Composable
 fun MonthOverviewGraph(
@@ -27,8 +21,6 @@ fun MonthOverviewGraph(
     totalRegularHours: Int? = 100,
     totalOvertimeHours: Int? = 20
 ) {
-    val gapSize = 3
-
     Card {
         Column(
             modifier = Modifier
@@ -36,121 +28,68 @@ fun MonthOverviewGraph(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("Total Registered Days", style = TextStyle(fontSize = 16.sp))
-
-                Row {
-                    for (i in 0 until gapSize) {
-                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
-                    }
-                }
-
-                if (totalRegisteredDays != null) {
-                    Text(
-                        if (totalRegisteredDays > 1) "$totalRegisteredDays days" else "$totalRegisteredDays day",
-                        style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                    )
-                }
-            }
-
-            Spacer(Modifier.padding(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("Total Worked Days", style = TextStyle(fontSize = 16.sp))
-
-                Row {
-                    for (i in 0 until gapSize) {
-                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
-                    }
-                }
-
-                if (totalWorkedDays != null) {
-                    Text(
-                        if (totalWorkedDays > 1) "$totalWorkedDays days" else "$totalWorkedDays day",
-                        style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                    )
-                }
-            }
-
-            Spacer(Modifier.padding(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("Total Worked Hours", style = TextStyle(fontSize = 16.sp))
-
-                Row {
-                    for (i in 0 until gapSize) {
-                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
-                    }
-                }
-
-                Text(
-                    "$totalWorkedHours hours",
-                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                )
-            }
-
-            Spacer(Modifier.padding(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("Total Regular Hours", style = TextStyle(fontSize = 16.sp))
-
-                Row {
-                    for (i in 0 until gapSize) {
-                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
-                    }
-                }
-
-                Text(
-                    "$totalRegularHours hours",
-                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                )
-            }
-
-            Spacer(Modifier.padding(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Text("Total Overtime Hours", style = TextStyle(fontSize = 16.sp))
-
-                Row {
-                    for (i in 0 until gapSize) {
-                        Text("-", style = TextStyle(fontSize = 16.sp, color = Color(0xFF555555)))
-                    }
-                }
-
-                Text(
-                    "$totalOvertimeHours hours",
-                    style = TextStyle(fontSize = 16.sp, color = Color(0xFF2D7332))
-                )
-            }
-
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                color = DividerDefaults.color,
-                thickness = DividerDefaults.Thickness,
+            InfoRow(
+                label = "Total registered days",
+                value = totalRegisteredDays,
+                isDayFormat = true,
+                isHourFormat = false,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
             )
 
-            // pie chart based on workday type
-            Text(
-                "Pie Chart coming Soon!",
-                style = TextStyle(fontSize = 24.sp, color = Color(0xFF555555))
+            Spacer(Modifier.padding(4.dp))
+
+            InfoRow(
+                label = "Total worked days",
+                value = totalWorkedDays,
+                isDayFormat = true,
+                isHourFormat = false,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
             )
+
+            Spacer(Modifier.padding(4.dp))
+
+            HorizontalDividerWithLabel("Worked hours")
+
+            InfoRow(
+                label = "Total Worked Hours",
+                value = totalWorkedHours,
+                isDayFormat = false,
+                isHourFormat = true,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
+            )
+
+            InfoRow(
+                label = "- Regular Hours",
+                value = totalRegularHours,
+                isDayFormat = false,
+                isHourFormat = true,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
+            )
+
+            InfoRow(
+                label = "- Overtime Hours",
+                value = totalOvertimeHours,
+                isDayFormat = false,
+                isHourFormat = true,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
+            )
+
+            // TODO: Add pie chart
         }
     }
 }

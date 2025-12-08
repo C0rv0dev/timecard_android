@@ -28,7 +28,7 @@ fun NavigationStack(appManager: AppManager) {
     val navController: NavHostController = rememberNavController()
 
     // Define viewModels here if needed and pass them to screens
-    val homeViewModel = remember { HomeViewModel() }
+    val homeViewModel = remember { HomeViewModel(dataStorageManager = appManager.dataStorageManager) }
 
     NavHost(
         startDestination = if (appManager.shared.isInDebugMode) Screens.Home.route else Screens.Splash.route,
