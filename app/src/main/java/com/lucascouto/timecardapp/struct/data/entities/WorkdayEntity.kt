@@ -84,86 +84,82 @@ data class WorkdayEntity(
         return color ?: WorkdayTypeEnum.color(shiftType)
     }
 
-    fun getWorkdayData(): Map<String, Int> {
-        val data: MutableMap<String, Int> = mutableMapOf()
-
-        // hours
-        data to ("regular_hours" to 0)
-        data to ("overtime_hours" to 0)
-        data to ("late_night_hours" to 0)
-        // salaries
-        data to ("regular" to 0)
-        data to ("bonus" to 0)
-        data to ("overtime" to 0)
-        data to ("late_night" to 0)
-        data to ("allowances" to 0)
+    fun getHours(): WorkdayDataEntity {
+        val data = WorkdayDataEntity(
+            entity = this,
+            regularHours = 0f,
+            overtimeHours = 0f,
+            lateNightHours = 0f,
+            allowance = false,
+        )
 
         if (shiftType == WorkdayTypeEnum.UNPAID_LEAVE.value || shiftType == WorkdayTypeEnum.HOLIDAY.value)
             return data
-        else if (shiftType == WorkdayTypeEnum.PAID_LEAVE.value) {
-            data["allowances"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
+
+        if (shiftType == WorkdayTypeEnum.PAID_LEAVE.value) {
+            data.allowance = true
             return data
         }
 
         val shiftDurationMinutes = TimeUtils.convertTimeToMinutes(shiftDuration) ?: 0
         val baseShiftDurationMinutes = baseShiftDurationHoursAtTime * 60
-        val regularHours = shiftDurationMinutes / 60
+        val regularHours = shiftDurationMinutes / 60f
 
-        // calc bonus payment
-        // if shift is grater than base shift duration, bonus is only for base hours
-        if (shiftDurationMinutes > baseShiftDurationMinutes) {
-            val overtimeRate: Float = 1f + (overtimeRateMultiAtTime / 100f)
-            val overtimeHours = (shiftDurationMinutes - baseShiftDurationMinutes) / 60
+        // calc regular hours
+        data.regularHours = if (shiftDurationMinutes <= baseShiftDurationMinutes)
+            regularHours
+        else
+            baseShiftDurationHoursAtTime.toFloat()
 
-            data["bonus"] = baseShiftDurationHoursAtTime * defaultBonusPaymentAtTime
-            data["regular"] = baseShiftDurationHoursAtTime * defaultHourlyPayAtTime
-            data["overtime"] =
-                ((defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * overtimeHours * overtimeRate).toInt()
+        // calc overtime hours
+        data.overtimeHours = if (shiftDurationMinutes > baseShiftDurationMinutes)
+            (shiftDurationMinutes - baseShiftDurationMinutes) / 60f
+        else
+            0f
 
-            data["overtime_hours"] = overtimeHours
-            data["regular_hours"] = baseShiftDurationHoursAtTime
-        } else {
-            data["bonus"] = regularHours * defaultBonusPaymentAtTime
-            data["regular"] = regularHours * defaultHourlyPayAtTime
-            data["regular_hours"] = regularHours
-        }
-
-        val lateNightHours = calculateLateNightHours()
-        val lateNightRate: Float = lateNightRateMultiAtTime / 100f
-
-        data["late_night_hours"] = lateNightHours
-        data["late_night"] =
-            (lateNightHours * (defaultHourlyPayAtTime + defaultBonusPaymentAtTime) * lateNightRate).toInt()
+        // calc late night hours
+        data.lateNightHours = calculateLateNightMinutes() / 60f
 
         return data
     }
 
-    private fun calculateLateNightHours(): Int {
-        val shiftStartMinutes = TimeUtils.convertTimeToMinutes(shiftStartHour) ?: return 0
-        val shiftEndMinutes = TimeUtils.convertTimeToMinutes(shiftEndHour) ?: return 0
-        val lateNightStartMinutes =
-            TimeUtils.convertTimeToMinutes(lateNightStartTimeAtTime) ?: return 0
-        val lateNightEndMinutes = TimeUtils.convertTimeToMinutes(lateNightEndTimeAtTime) ?: return 0
+    private fun calculateLateNightMinutes(): Float {
+        val lateNightStart = TimeUtils.convertTimeToMinutes(lateNightStartTimeAtTime) ?: 0
+        val lateNightEnd = TimeUtils.convertTimeToMinutes(lateNightEndTimeAtTime) ?: 0
+        val shiftStart = TimeUtils.convertTimeToMinutes(shiftStartHour) ?: 0
+        val shiftEnd = TimeUtils.convertTimeToMinutes(shiftEndHour) ?: 0
 
-        var totalLateNightMinutes = 0
+        var lateNightMinutes = 0f
 
-        var currentMinute = shiftStartMinutes
-        while (true) {
-            val isInLateNight = if (lateNightStartMinutes < lateNightEndMinutes) {
-                currentMinute in lateNightStartMinutes until lateNightEndMinutes
-            } else {
-                currentMinute >= lateNightStartMinutes || currentMinute < lateNightEndMinutes
-            }
+        // Handle shifts that cross midnight
+        val adjustedShiftEnd = if (shiftEnd <= shiftStart) shiftEnd + 1440 else shiftEnd
+        val adjustedLateNightEnd =
+            if (lateNightEnd <= lateNightStart) lateNightEnd + 1440 else lateNightEnd
 
-            if (isInLateNight) {
-                totalLateNightMinutes++
-            }
+        // Calculate overlap with late night period
+        val overlapStart = maxOf(shiftStart, lateNightStart)
+        val overlapEnd = minOf(adjustedShiftEnd, adjustedLateNightEnd)
 
-            if (currentMinute == shiftEndMinutes) break
-
-            currentMinute = (currentMinute + 1) % (24 * 60)
+        // Calculate late night minutes
+        if (overlapEnd > overlapStart) {
+            lateNightMinutes = (overlapEnd - overlapStart).toFloat()
         }
 
-        return totalLateNightMinutes / 60
+        // Subtract lunch break if it falls within late night hours
+        val lunchStart = TimeUtils.convertTimeToMinutes(lunchStartHour) ?: 0
+        val lunchEnd = lunchStart + lunchDurationMinutes
+
+        val adjustedLunchEnd = if (lunchEnd <= lunchStart) lunchEnd + 1440 else lunchEnd
+        val lunchOverlapStart = maxOf(lunchStart, overlapStart)
+        val lunchOverlapEnd = minOf(adjustedLunchEnd, overlapEnd)
+
+        if (lunchOverlapEnd > lunchOverlapStart) {
+            lateNightMinutes -= (lunchOverlapEnd - lunchOverlapStart).toFloat()
+        }
+
+        // Ensure late night minutes is not negative
+        if (lateNightMinutes < 0f) lateNightMinutes = 0f
+
+        return lateNightMinutes
     }
 }

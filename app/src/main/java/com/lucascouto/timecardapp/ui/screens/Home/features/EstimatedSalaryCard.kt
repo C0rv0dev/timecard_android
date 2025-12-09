@@ -44,7 +44,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Regular payment",
-                value = estimatedRegularSalary,
+                value = estimatedRegularSalary.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -57,7 +57,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Bonus payment",
-                value = estimatedBonusSalary,
+                value = estimatedBonusSalary.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -70,7 +70,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Overtime payment",
-                value = estimatedOvertimeSalary,
+                value = estimatedOvertimeSalary.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -83,7 +83,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Locomotion bonus",
-                value = estimatedLocomotionBonus,
+                value = estimatedLocomotionBonus.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -96,7 +96,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Late night payment",
-                value = estimatedLateNightSalary,
+                value = estimatedLateNightSalary.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -109,7 +109,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Paid allowances",
-                value = estimatedPaidAllowances,
+                value = estimatedPaidAllowances.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -122,7 +122,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Unemployment insurance",
-                value = estimatedUnemploymentInsurance,
+                value = estimatedUnemploymentInsurance.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -135,7 +135,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Estimated Gross Salary",
-                value = estimatedGrossSalary,
+                value = estimatedGrossSalary?.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,
@@ -148,7 +148,7 @@ fun EstimatedSalaryCard(
 
             InfoRow(
                 label = "Estimated Net Salary",
-                value = estimatedNetSalary,
+                value = estimatedNetSalary?.toFloat(),
                 isDayFormat = false,
                 isHourFormat = false,
                 isMoneyFormat = true,

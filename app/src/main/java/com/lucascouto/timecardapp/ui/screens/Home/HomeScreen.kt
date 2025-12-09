@@ -53,9 +53,11 @@ fun HomeScreen(
             MonthOverviewGraph(
                 totalRegisteredDays = viewModel.totalRegisteredDays.value,
                 totalWorkedDays = viewModel.totalWorkedDays.value,
+                totalAbsentDays = viewModel.totalAbsentDays.value,
                 totalWorkedHours = viewModel.totalWorkedHours.value,
                 totalRegularHours = viewModel.totalRegularHours.value,
-                totalOvertimeHours = viewModel.totalOvertimeHours.value
+                totalOvertimeHours = viewModel.totalOvertimeHours.value,
+                totalLateNightHours = viewModel.totalLateNightHours.value,
             )
 
             Spacer(modifier = Modifier.padding(8.dp))

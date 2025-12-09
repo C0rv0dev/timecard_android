@@ -31,7 +31,7 @@ class TimeUtils {
             val endHour = endParts[0].toIntOrNull() ?: return ""
             val endMinute = endParts[1].toIntOrNull() ?: return ""
 
-            var totalStartMinutes = startHour * 60 + startMinute
+            val totalStartMinutes = startHour * 60 + startMinute
             var totalEndMinutes = endHour * 60 + endMinute
 
             if (totalEndMinutes < totalStartMinutes) {
@@ -96,6 +96,16 @@ class TimeUtils {
             val yearString = "$year"
 
             return "$yearString-$monthString-$dayString"
+        }
+
+        fun formatHoursToHHMM(value: Float): String {
+            println("Formatting hours: $value")
+            val totalMinutes = (value * 60).toInt()
+            val hours = totalMinutes / 60
+            val minutes = totalMinutes % 60
+            val hoursString = if (hours < 10) "0$hours" else "$hours"
+            val minutesString = if (minutes < 10) "0$minutes" else "$minutes"
+            return "${hoursString}h${minutesString}m"
         }
     }
 }

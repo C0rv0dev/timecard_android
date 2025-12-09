@@ -120,6 +120,7 @@ class FileStoreManager {
                 obj.put("lunchStartHour", workday.lunchStartHour)
                 obj.put("lunchDurationMinutes", workday.lunchDurationMinutes)
                 obj.put("defaultHourlyPayAtTime", workday.defaultHourlyPayAtTime)
+                obj.put("defaultBonusPaymentAtTime", workday.defaultBonusPaymentAtTime)
                 obj.put("overtimeRateMultiAtTime", workday.overtimeRateMultiAtTime)
                 obj.put("lateNightRateMultiAtTime", workday.lateNightRateMultiAtTime)
                 obj.put("baseShiftDurationHoursAtTime", workday.baseShiftDurationHoursAtTime)

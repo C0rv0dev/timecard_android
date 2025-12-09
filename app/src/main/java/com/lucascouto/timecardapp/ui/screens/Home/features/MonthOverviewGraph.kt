@@ -17,9 +17,11 @@ import com.lucascouto.timecardapp.ui.components.InfoRow
 fun MonthOverviewGraph(
     totalRegisteredDays: Int? = 22,
     totalWorkedDays: Int? = 20,
-    totalWorkedHours: Int? = 120,
-    totalRegularHours: Int? = 100,
-    totalOvertimeHours: Int? = 20
+    totalAbsentDays: Int? = 2,
+    totalWorkedHours: Float? = 120f,
+    totalRegularHours: Float? = 100f,
+    totalOvertimeHours: Float? = 20f,
+    totalLateNightHours: Float? = 10f,
 ) {
     Card {
         Column(
@@ -30,7 +32,7 @@ fun MonthOverviewGraph(
         ) {
             InfoRow(
                 label = "Total registered days",
-                value = totalRegisteredDays,
+                value = totalRegisteredDays?.toFloat(),
                 isDayFormat = true,
                 isHourFormat = false,
                 isMoneyFormat = false,
@@ -43,7 +45,20 @@ fun MonthOverviewGraph(
 
             InfoRow(
                 label = "Total worked days",
-                value = totalWorkedDays,
+                value = totalWorkedDays?.toFloat(),
+                isDayFormat = true,
+                isHourFormat = false,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
+            )
+
+            Spacer(Modifier.padding(4.dp))
+
+            InfoRow(
+                label = "Total absent days",
+                value = totalAbsentDays?.toFloat(),
                 isDayFormat = true,
                 isHourFormat = false,
                 isMoneyFormat = false,
@@ -81,6 +96,17 @@ fun MonthOverviewGraph(
             InfoRow(
                 label = "- Overtime Hours",
                 value = totalOvertimeHours,
+                isDayFormat = false,
+                isHourFormat = true,
+                isMoneyFormat = false,
+                isEarning = false,
+                isDeduction = false,
+                highlight = false
+            )
+
+            InfoRow(
+                label = "- Late Night Hours",
+                value = totalLateNightHours,
                 isDayFormat = false,
                 isHourFormat = true,
                 isMoneyFormat = false,

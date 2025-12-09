@@ -15,11 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lucascouto.timecardapp.struct.data.utils.TimeUtils
 
 @Composable
 fun InfoRow(
     label: String,
-    value: Int?,
+    value: Float?,
     isDayFormat: Boolean = false,
     isHourFormat: Boolean = false,
     isMoneyFormat: Boolean = false,
@@ -87,16 +88,16 @@ fun InfoRow(
 }
 
 private fun getTextualRepresentation(
-    value: Int?,
+    value: Float?,
     isDayFormat: Boolean = false,
     isHourFormat: Boolean = false,
     isMoneyFormat: Boolean = false
 ): String {
     return when {
         value == null -> "--"
-        isDayFormat -> "$value day${if (value != 1) "s" else ""}"
-        isMoneyFormat -> "¥${"%,d".format(value)}"
-        isHourFormat -> "${value}hrs"
+        isDayFormat -> "${value.toInt()} day${if (value.toInt() != 1) "s" else ""}"
+        isMoneyFormat -> "¥${"%,d".format(value.toInt())}"
+        isHourFormat -> TimeUtils.formatHoursToHHMM(value)
 
         else -> value.toString()
     }
